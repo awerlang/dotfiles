@@ -1,0 +1,40 @@
+# New repository
+
+    ```bash
+    git init --bare ~/.dotfiles
+    alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+    dotfiles config status.showUntrackedFiles no
+   ```
+
+   or
+
+    ```bash
+    git init --bare ~/.config/dotfiles
+    alias dotfiles='/usr/bin/git --git-dir=$HOME/.config/dotfiles/ --work-tree=$HOME'
+    dotfiles config status.showUntrackedFiles no
+   ```
+
+# New computer
+
+    ```bash
+    git clone --separate-git-dir=$HOME/.dotfiles /path/to/repo $HOME/dotfiles-tmp
+    cp ~/dotfiles-tmp/.gitmodules ~  # If you use Git submodules
+    rm -r ~/dotfiles-tmp/
+    alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+    ```
+
+    ```bash
+    git clone --bare <git-repo-url> $HOME/.config/dotfiles
+    dotfiles checkout
+    ```
+
+    ```bash
+    function dotfiles {
+        git --git-dir=$HOME/.config/dotfiles/ --work-tree=$HOME $@
+    }
+    ```
+
+# References
+
+* https://news.ycombinator.com/item?id=11070797
+* https://www.atlassian.com/git/tutorials/dotfiles

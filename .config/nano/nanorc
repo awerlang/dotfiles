@@ -1,0 +1,41 @@
+include "/usr/share/nano/*.nanorc"
+
+set mouse
+set linenumbers
+set autoindent
+set tabsize 4
+set tabstospaces
+
+unbind ^K main
+unbind ^U main
+unbind ^W main
+
+bind ^O insert main
+bind ^S writeout main
+bind ^W exit main
+bind F1 help main
+
+bind ^L curpos main
+bind ^J gotoline main
+
+bind ^Space mark main
+bind ^T zap main
+bind ^X cut main
+bind ^C copy main
+bind ^V paste main
+
+bind ^F whereis main
+bind ^G wherewas main
+bind ^N findnext main
+bind ^P findprevious main
+bind ^H replace main
+
+bind ^/ comment main
+
+bind ^Z undo main
+bind ^Y redo main
+
+bind M-A nohelp main
+bind M-L constantshow main
+
+bind M-Z suspend main

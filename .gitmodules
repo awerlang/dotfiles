@@ -1,0 +1,6 @@
+[submodule "bash-git-prompt"]
+	path = .config/bash-git-prompt
+	url = https://github.com/magicmonty/bash-git-prompt.git
+[submodule "diff-so-fancy"]
+	path = .config/diff-so-fancy
+	url = https://github.com/so-fancy/diff-so-fancy.git
