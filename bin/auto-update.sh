@@ -55,7 +55,7 @@ if [ -z "$SKIP_SYSTEM_REASON" ]; then
         notify-send -a "System update" -t 5000 "New system updates available" "It's a good time to update the system ;)"
     fi
 else
-    printf "\n${COLOR2}>> Skipping System: $SKIP_SYSTEM_REASON.${NC}\n"
+    printf "${COLOR2}>> Skipping System: $SKIP_SYSTEM_REASON.${NC}\n"
 fi
 
 echo ""

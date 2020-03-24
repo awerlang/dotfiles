@@ -26,24 +26,26 @@ zypper search --requires --recommends --supplements --suggests                  
 zypper search --requires-pkg --recommends-pkg --supplements-pkg --suggests-pkg  # packages: provides
 
 etckeeper commit -m ''
-etckeeper vcs status
-etckeeper vcs diff | fancy
-etckeeper vcs show HEAD | fancy
+etckeeper vcs diff $(etckeeper vcs rev-list --max-parents=0 HEAD) | fancy
 etckeeper vcs log
 etckeeper vcs log --oneline
 etckeeper vcs log sudoers
 etckeeper vcs checkout -- 
 etckeeper vcs reset HEAD^
 etckeeper vcs reset --hard HEAD
-etckeeper vcs diff $(etckeeper vcs rev-list --max-parents=0 HEAD) | fancy
+etckeeper vcs show HEAD | fancy
+etckeeper vcs diff | fancy
+etckeeper vcs status
 
-dotfiles status
-dotfiles diff | fancy
-dotfiles diff --staged | fancy
-dotfiles untracked
-dotfiles camend -a
-dotfiles push -f
 dotfiles ls-files
+dotfiles untracked
+dotfiles push
+dotfiles camend -a
+dotfiles commit -a -m ""
+dotfiles commit -a
+dotfiles diff --staged | fancy
+dotfiles diff | fancy
+dotfiles status
 
 smartctl -a /dev/nvme0n1    # storage: health
 smartctl -a /dev/sda        # storage: health
