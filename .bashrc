@@ -136,7 +136,14 @@ protect-config () {
 }
 
 editrc () {
-    sudo chattr -i $1
-    nano $1
-    sudo chattr +i $1
+    BACKUP="$(mktemp --tmpdir -d editrc.XXX)/$(basename $1)"
+    command cp --preserve=all $1 $BACKUP
+    oldtime=$(stat -c %Y "$BACKUP")
+
+    nano $BACKUP
+    if [[ $(stat -c %Y "$BACKUP") -gt $oldtime ]] ; then
+        sudo chattr -i $1 && command cp --preserve=all $BACKUP $1 && sudo chattr +i $1
+    else
+        echo "No changes."
+    fi
 }
