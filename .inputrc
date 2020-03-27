@@ -31,6 +31,9 @@ set revert-all-at-newline on
 #
 
 set echo-control-characters off
+set enable-bracketed-paste on
+set colored-completion-prefix on
+set colored-stats on
 
 # up, down, search history with prefix
 "\e[A": history-search-backward
