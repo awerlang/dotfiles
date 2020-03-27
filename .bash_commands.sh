@@ -55,7 +55,7 @@ nvme error-log              # storage: health
 sudo lsblk --output=NAME,FSTYPE,LABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINT,SIZE,OWNER,GROUP,MODE,SCHED,STATE,TRAN  # storage: partitions
 btrfs filesystem usage /    # storage: fs
 btrfs device stats /        # storage: fs
-btrfs subvolume list /      # storage: fs
+btrfs subvolume list -pcguq -t --sort=ogen /      # storage: fs
 btrfs subvolume get-default /   # storage: fs
 btrfs subvolume show /      # storage: fs
 snapper -c root list        # storage: fs
