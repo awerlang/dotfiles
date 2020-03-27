@@ -1,5 +1,6 @@
 include "/usr/share/nano/*.nanorc"
 
+set tempfile
 set mouse
 set linenumbers
 set autoindent
