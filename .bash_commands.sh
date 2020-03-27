@@ -134,3 +134,4 @@ protect-config +i
 protect-config -i
 editrc .bashrc
 editrc .bash_commands.sh
+editrc 

@@ -135,15 +135,34 @@ protect-config () {
     fi
 }
 
+_editrc_files () {
+    dotfiles ls-files | nl -w2 -n'rz' -s' '
+}
+
 editrc () {
-    BACKUP="$(mktemp --tmpdir -d editrc.XXX)/$(basename $1)"
-    command cp --preserve=all $1 $BACKUP
+    FILE=$1
+    if [[ $FILE =~ ^[[:digit:]] ]]; then
+        FILE=$(_editrc_files | grep "^$1 " | head -n 1 | cut -f 2 -d ' ')
+    fi
+    BACKUP="$(mktemp --tmpdir -d editrc.XXX)/$(basename $FILE)"
+    command cp --preserve=all $FILE $BACKUP
     oldtime=$(stat -c %Y "$BACKUP")
 
     nano $BACKUP
     if [[ $(stat -c %Y "$BACKUP") -gt $oldtime ]] ; then
-        sudo chattr -i $1 && command cp --preserve=all $BACKUP $1 && sudo chattr +i $1
+        sudo chattr -i $FILE && command cp --preserve=all $BACKUP $FILE && sudo chattr +i $FILE
     else
         echo "No changes."
     fi
 }
+
+_editrc_completions () {
+    if [ "${#COMP_WORDS[@]}" != "2" ]; then
+        return
+    fi
+
+    local IFS=$'\n'
+    COMPREPLY=($(compgen -W "$(_editrc_files)" --  "${COMP_WORDS[1]}"))
+}
+
+complete -F _editrc_completions editrc
