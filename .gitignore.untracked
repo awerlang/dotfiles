@@ -1,0 +1,16 @@
+.bash_history
+.cache
+.config/Code
+.config/bash-git-prompt
+.config/diff-so-fancy
+.config/dotfiles
+.config/gtk*
+.config/k*
+.config/pulse
+.config/session
+.local/share
+.kde4
+.nv
+.mozilla
+Downloads
+*.local
