@@ -13,6 +13,8 @@ fi
 export MANPAGER="less -X"
 export EDITOR='nano'
 export VISUAL='nano'
+export LESSHISTFILE=-
+export NODE_REPL_HISTORY=""
 
 HISTCONTROL=ignoreboth:erasedups
 HISTFILE=~/.bash_commands.sh
