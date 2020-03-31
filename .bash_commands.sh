@@ -43,6 +43,8 @@ dotfiles push
 dotfiles camend -a
 dotfiles commit -a -m ""
 dotfiles commit -a
+dotfiles add -u
+dotfiles add 
 dotfiles diff --staged | fancy
 dotfiles diff | fancy
 dotfiles status
@@ -52,15 +54,16 @@ smartctl -a /dev/sda        # storage: health
 smartctl --scan             # storage: health
 nvme error-log              # storage: health
 
-sudo lsblk --output=NAME,FSTYPE,LABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINT,SIZE,OWNER,GROUP,MODE,SCHED,STATE,TRAN  # storage: partitions
+sudo lsblk --output=NAME,FSTYPE,LABEL,PARTLABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINT,SIZE,OWNER,GROUP,MODE,SCHED,STATE,TRAN   # storage: partitions
 btrfs filesystem usage /    # storage: fs
 btrfs device stats /        # storage: fs
-btrfs subvolume list -pcguq -t --sort=ogen /      # storage: fs
-btrfs subvolume get-default /   # storage: fs
+btrfs subvolume list -pcguq -t --sort=ogen /    # storage: fs
+btrfs subvolume get-default /                   # storage: fs
 btrfs subvolume show /      # storage: fs
 snapper -c root list        # storage: fs
 filefrag                    # storage: fs
 filefrag -v                 # storage: fs
+du -hx -d 1 . | sort -hs    # storage: directory size
 
 free --human    # system: free memory
 uname -a        # system: label
@@ -120,11 +123,16 @@ sort --ignore-case --human-numeric-sort source.txt  # sort: case insensitive
 sort --reverse --human-numeric-sort source.txt      # sort: reverse sort
 sort --unique source.txt                            # sort: unique
 sort --unique --output source.txt{,}                # sort: in-place
+xxd -c 48 -l 1000000 FILENAME | less     # hex view
 
 watch -- 
 watch -- sensors
 watch -- free --human
 watch -- ps afux
+
+curl cheat.sh   # tools: cheatsheets
+curl wttr.in    # tools: weather
+cal             # tools: calendar
 
 lsattr      # files: attributes
 chattr      # files: attributes
