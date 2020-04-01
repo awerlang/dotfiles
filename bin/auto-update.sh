@@ -74,12 +74,12 @@ sudo zypper refresh --repo repo-update
 pkglist=$(zypper list-updates | grep "openSUSE-Tumbleweed-Update" | awk -F \| '{ print $3 }')
 if [ -n "$pkglist" ]; then
     pkgtree=""
-    while IFS= read -r pkg ; do 
+    while IFS= read -r pkg; do
         pkgtree+="*$pkg\n"
         deps=$(zypper search --installed-only --requires-pkg $pkg | grep "^i" | awk -F \| '{ print "  └─" $2 }' | grep -v " lib")
         [ -n "$deps" ] && pkgtree+="$deps\n"
     done <<< "$pkglist"
-    printf ">> Found hot-fixes for installed packages.\n$pkgtree\n"
+    printf "\n${COLOR2}>> Found hot-fixes for installed packages.${NC}\n\nPackages:\n$pkgtree\n"
     notify-send -a "System update" -t 5000 "Found hot-fixes" "Packages: \n$pkgtree"
 else
     printf "\n${COLOR2}>> No urgent updates found.${NC}\n"
