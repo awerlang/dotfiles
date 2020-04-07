@@ -43,6 +43,7 @@ dotfiles push
 dotfiles camend -a
 dotfiles commit -a -m ""
 dotfiles commit -a
+dotfiles add -p
 dotfiles add -u
 dotfiles add 
 dotfiles diff --staged | fancy
@@ -97,6 +98,7 @@ read -r var     # io: read into variable
 read < "/path"  # io: read from file
 socat
 ss -ralnp -f inet
+watch -n 1 -- "ss -o state established '( dport = :http or sport = :http )'"
 nc -d 
 nc -du 
 dd if=/dev/_ of=/dev/_ iflag=direct oflag=direct bs=32M status=progress
@@ -123,7 +125,8 @@ sort --ignore-case --human-numeric-sort source.txt  # sort: case insensitive
 sort --reverse --human-numeric-sort source.txt      # sort: reverse sort
 sort --unique source.txt                            # sort: unique
 sort --unique --output source.txt{,}                # sort: in-place
-xxd -c 48 -l 1000000 FILENAME | less     # hex view
+xxd -c 48 -l 1000000 FILENAME | less    # hex view
+xmllint --xpath '/root/child/@attr' -   # text: xml xpath expression
 
 watch -- 
 watch -- sensors
