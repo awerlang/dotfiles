@@ -169,3 +169,15 @@ _editrc_completions () {
 }
 
 complete -F _editrc_completions editrc
+
+# Welcome messages
+
+function welcome () {
+    failed_systemd=$(SYSTEMD_COLORS=1 systemctl --state=failed | sed -e '/^$/,$d' -e 's/^/>>> /')
+    if echo "$failed_systemd" | grep failed > /dev/null; then
+        echo "$failed_systemd"
+        echo ""
+    fi
+}
+
+welcome
