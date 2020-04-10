@@ -28,7 +28,7 @@
 ##      RUN_ZYPPER          = no
 ##
 ### LICENSE
-##      zypper-download v0.1
+##      zypper-download v0.2
 ##
 ##      Copyright (C) 2020 André Werlang
 ##

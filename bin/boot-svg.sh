@@ -1,2 +1,3 @@
 #!/bin/bash
-xmllint --xpath '*//*[@class="left"]/text()' $1.svg | sort | grep -Eo '^[^ ]+' > $1.txt
+path="${1%.txt}"
+xmllint --xpath '*//*[@class="left"]/text()' "${path}.svg" | sort | grep -Eo '^[^ ]+' >"${path}.txt"
