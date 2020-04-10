@@ -26,7 +26,7 @@ done
 # dotfiles with bare git repository on home directory
 
 function dotfiles {
-    git --git-dir=$HOME/.config/dotfiles/ --work-tree=$HOME $@
+    git --git-dir="$HOME/.config/dotfiles/" --work-tree="$HOME" "$@"
 }
 
 complete -o default -o nospace -F _git dotfiles
@@ -35,9 +35,9 @@ export PS1='`if [ $? = 0 ]; then echo "\[\033[01;32m\]✔"; else echo "\[\033[01
 
 # git repository status for bash prompt
 
-if [ -f "$HOME/.config/bash-git-prompt/gitprompt.sh" ]; then
+if [[ -f "$HOME/.config/bash-git-prompt/gitprompt.sh" ]]; then
     GIT_PROMPT_ONLY_IN_REPO=1
-    source $HOME/.config/bash-git-prompt/gitprompt.sh
+    source "$HOME/.config/bash-git-prompt/gitprompt.sh"
 fi
 
 # shell helpers
@@ -52,7 +52,7 @@ alias mkdir='mkdir -vp'
 alias cp='cp -v'
 alias mv='mv -v'
 alias rm='rm -vi'
-alias path='echo $PATH | tr -s ":" "\n"'
+alias path='echo "$PATH" | tr -s ":" "\n"'
 alias where='find . -name'
 alias count='sort | uniq -c | sort -hr'
 alias watch='watch --color --differences'
@@ -69,7 +69,7 @@ alias clip='xclip -selection clipboard'
 alias newpasswd='pwgen -cnys1 16'
 alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public key copied to clipboard."'
 alias fancy='$HOME/.config/diff-so-fancy/diff-so-fancy | less -FRSX'
-alias json='cat $1 | python -m json.tool'
+alias json='cat "$1" | python -m json.tool'
 
 # sudo
 
@@ -88,11 +88,11 @@ alias g='git'
 complete -o default -o nospace -F _git g
 
 diff () {
-    command diff -u $1 $2 | fancy
+    command diff -u "$1" "$2" | fancy
 }
 
 highlight () {
-    grep --color=always --extended-regexp -e "^" -e $* | less -R
+    grep --color=always --extended-regexp -e "^" -e "$*" | less -R
 }
 
 # Advanced directory creation
@@ -101,19 +101,19 @@ mkd () {
 }
 
 extract () {
-    if [ -f $1 ] ; then
+    if [[ -f $1 ]] ; then
       case $1 in
-        *.tar.bz2)   tar xjf $1     ;;
-        *.tar.gz)    tar xzf $1     ;;
-        *.bz2)       bunzip2 $1     ;;
-        *.rar)       unrar x $1     ;;
-        *.gz)        gunzip $1      ;;
-        *.tar)       tar xf $1      ;;
-        *.tbz2)      tar xjf $1     ;;
-        *.tgz)       tar xzf $1     ;;
-        *.zip)       unzip $1       ;;
-        *.Z)         uncompress $1  ;;
-        *.7z)        7z x $1        ;;
+        *.tar.bz2)   tar xjf "$1"     ;;
+        *.tar.gz)    tar xzf "$1"     ;;
+        *.bz2)       bunzip2 "$1"     ;;
+        *.rar)       unrar x "$1"     ;;
+        *.gz)        gunzip "$1"      ;;
+        *.tar)       tar xf "$1"      ;;
+        *.tbz2)      tar xjf "$1"     ;;
+        *.tgz)       tar xzf "$1"     ;;
+        *.zip)       unzip "$1"       ;;
+        *.Z)         uncompress "$1"  ;;
+        *.7z)        7z x "$1"        ;;
         *)           echo "'$1' cannot be extracted via extract()" ;;
        esac
      else
@@ -132,9 +132,9 @@ serve () {
 protect-config () {
     FLAG=$1
     FILES=$(dotfiles ls-files | xargs -I @ -- find @ -type f | xargs echo)
-    lsattr $FILES
-    if [ "$FLAG" ]; then
-        sudo chattr $FLAG $FILES
+    lsattr "$FILES"
+    if [[ "$FLAG" ]]; then
+        sudo chattr "$FLAG" "$FILES"
     fi
 }
 
@@ -147,20 +147,20 @@ editrc () {
     if [[ $FILE =~ ^[[:digit:]] ]]; then
         FILE=$(_editrc_files | grep "^$1 " | head -n 1 | cut -f 2 -d ' ')
     fi
-    BACKUP="$(mktemp --tmpdir -d editrc.XXX)/$(basename $FILE)"
-    command cp --preserve=all $FILE $BACKUP
+    BACKUP=$(mktemp --tmpdir -d editrc.XXX)"/"$(basename "$FILE")
+    command cp --preserve=all "$FILE" "$BACKUP"
     oldtime=$(stat -c %Y "$BACKUP")
 
-    nano $BACKUP
+    nano "$BACKUP"
     if [[ $(stat -c %Y "$BACKUP") -gt $oldtime ]] ; then
-        sudo chattr -i $FILE && command cp --preserve=all $BACKUP $FILE && sudo chattr +i $FILE
+        sudo chattr -i "$FILE" && command cp --preserve=all "$BACKUP" "$FILE" && sudo chattr +i "$FILE"
     else
         echo "No changes."
     fi
 }
 
 _editrc_completions () {
-    if [ "${#COMP_WORDS[@]}" != "2" ]; then
+    if [[ "${#COMP_WORDS[@]}" != "2" ]]; then
         return
     fi
 

@@ -41,18 +41,18 @@
 set -o errexit -o nounset -o noclobber -o pipefail
 shopt -s nullglob
 
-function main () {
+main() {
     parse_opts "$@"
     set_default_config
 
     run
 }
 
-function error () {
+error() {
     echo "$0: $*"
 } 1>&2
 
-function parse_opts () {
+parse_opts() {
     local OPTIND OPTARG flag
     while getopts hvczd: flag
     do
@@ -76,46 +76,46 @@ function parse_opts () {
     readonly SUB_COMMAND=("$@")
 }
 
-function read_default_config () {
+read_default_config() {
     configuration | awk '/[[:alnum:]_ *= *.*]/{ print "[[ -v " $1 " ]] || readonly " $1 $2 "\x27" $3 "\x27" }'
 }
 
-function set_default_config () {
+set_default_config() {
     local vars=$(read_default_config)
     eval "$vars"
 }
 
-function subst_vars () {
+subst_vars() {
     export PKG_CACHE_DIR
     envsubst '$HOME $PKG_CACHE_DIR'
 }
 
-function about () {
+about() {
     set_default_config
     subst_vars
 }
 
-function usage () {
+usage() {
     sed '/^### SYNOPSIS$/,/^###/!d;//d;s/^## \{0,6\}//' "$0" | about
 }
 
-function version () {
+version() {
     sed '/^### LICENSE$/,/^###/!d;//d;s/^## \{0,6\}//' "$0" | about
 }
 
-function help () {
+help() {
     sed '/^##$/,/^####/!d;//d;s/^##.\{0,2\}//' "$0" | about
 }
 
-function configuration () {
+configuration() {
     sed '/^### CONFIGURATION$/,/^###/!d;//d;s/^## \{0,6\}//' "$0"
 }
 
-function package_dir () {
+package_dir() {
     echo "$PKG_CACHE_DIR" | subst_vars
 }
 
-function run () {
+run() {
     call_zypper "${SUB_COMMAND[@]}" \
         | create_download_spec \
         | download_all
@@ -128,7 +128,7 @@ function run () {
     fi
 }
 
-function call_zypper () {
+call_zypper() {
     local command="$1"
     local command_args=("${@:2}")
 
@@ -140,7 +140,7 @@ function call_zypper () {
                 "${command_args[@]}"
 }
 
-function create_download_spec () {
+create_download_spec() {
     local repo_arrays=$(zypper repos --uri | awk -F "|" '
         function trim(s) {
             gsub(/^ +| +$/, "", s);
@@ -186,7 +186,7 @@ function create_download_spec () {
         ' -
 }
 
-function download_all () {
+download_all() {
     aria2c --input-file=- \
            --max-connection-per-server=10 \
            --split=16 \
@@ -197,9 +197,9 @@ function download_all () {
            --continue=true
 }
 
-function check_rpm () {
+check_rpm() {
     local dir=$(package_dir)
-    find "$dir" -type f -name "*.rpm" -print0 | xargs -0 rpm --checksig
+    find "$dir" -type f -name "*.rpm" -print0 | xargs -0r rpm --checksig
 }
 
 main "$@"
