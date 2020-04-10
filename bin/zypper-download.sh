@@ -111,13 +111,19 @@ function configuration () {
     sed '/^### CONFIGURATION$/,/^###/!d;//d;s/^## \{0,6\}//' "$0"
 }
 
+function package_dir () {
+    echo "$PKG_CACHE_DIR" | subst_vars
+}
+
 function run () {
     call_zypper "${SUB_COMMAND[@]}" \
         | create_download_spec \
         | download_all
 
+    check_rpm
+
     if [[ "$RUN_ZYPPER" == yes ]]; then
-        local dir=$(echo "$PKG_CACHE_DIR" | subst_vars)
+        local dir=$(package_dir)
         sudo zypper --pkg-cache-dir "$dir" "${SUB_COMMAND[@]}"
     fi
 }
@@ -157,6 +163,10 @@ function create_download_spec () {
     )
 
     awk -v PKG_CACHE_DIR="$PKG_CACHE_DIR" "$repo_arrays"'
+        function trim(s) {
+            gsub(/^ +| +$/, "", s);
+            return s;
+        }
         NF==0 {
             pkg=0;
             next;
@@ -169,7 +179,7 @@ function create_download_spec () {
             name=$1;        getline;
             version=$NF;    getline;
             arch=$1;        getline;
-            repo=$1;        getline;
+            repo=trim($0);  getline;
             print uri[repo] "/" arch "/" name "-" version "." arch ".rpm";
             print "  dir=" PKG_CACHE_DIR "/" alias[repo] "/" arch;
         }
@@ -185,6 +195,11 @@ function download_all () {
            --allow-overwrite=true \
            --auto-file-renaming=false \
            --continue=true
+}
+
+function check_rpm () {
+    local dir=$(package_dir)
+    find "$dir" -type f -name "*.rpm" -print0 | xargs -0 rpm --checksig
 }
 
 main "$@"
