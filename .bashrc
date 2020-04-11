@@ -52,7 +52,7 @@ alias mkdir='mkdir -vp'
 alias cp='cp -v'
 alias mv='mv -v'
 alias rm='rm -vi'
-alias path='echo "$PATH" | tr -s ":" "\n"'
+alias path='printf "%s\n" "$PATH" | tr -s ":" "\n"'
 alias where='find . -name'
 alias count='sort | uniq -c | sort -hr'
 alias watch='watch --color --differences'
@@ -87,20 +87,20 @@ alias filefrag='/usr/sbin/filefrag'
 alias g='git'
 complete -o default -o nospace -F _git g
 
-diff () {
+diff() {
     command diff -u "$1" "$2" | fancy
 }
 
-highlight () {
+highlight() {
     grep --color=always --extended-regexp -e "^" -e "$*" | less -R
 }
 
 # Advanced directory creation
-mkd () {
+mkd() {
     [[ $1 ]] && mkdir "$1" && cd "$1"
 }
 
-extract () {
+extract() {
     if [[ -f $1 ]] ; then
       case $1 in
         *.tar.bz2)   tar xjf "$1"     ;;
@@ -122,44 +122,47 @@ extract () {
 }
 
 # simple file server over HTTP
-serve () {
-    port=${1:-8000}
+serve() {
+    local port=${1:-8000}
     sleep 1 && firefox localhost:$port &
     python3 -m http.server $port
 }
 
 # add/remove immutable flag to version-controlled files
-protect-config () {
-    FLAG=$1
-    FILES=$(dotfiles ls-files | xargs -I @ -- find @ -type f | xargs echo)
-    lsattr "$FILES"
-    if [[ "$FLAG" ]]; then
-        sudo chattr "$FLAG" "$FILES"
+protect-config() {
+    local flag=$1
+    if [[ -n "$flag" ]]; then
+        dotfiles ls-files | xargs -I @ -- find @ -type f -execdir sudo chattr $flag {} +
+    else
+        dotfiles ls-files | xargs -I @ -- find @ -type f -exec lsattr {} +
     fi
 }
 
-_editrc_files () {
+_editrc_files() {
     dotfiles ls-files | nl -w2 -n'rz' -s' '
 }
 
-editrc () {
-    FILE=$1
-    if [[ $FILE =~ ^[[:digit:]] ]]; then
-        FILE=$(_editrc_files | grep "^$1 " | head -n 1 | cut -f 2 -d ' ')
-    fi
-    BACKUP=$(mktemp --tmpdir -d editrc.XXX)"/"$(basename "$FILE")
-    command cp --preserve=all "$FILE" "$BACKUP"
-    oldtime=$(stat -c %Y "$BACKUP")
+editrc() {
+    local file=$1
+    [[ -n $file ]] || { printf "Missing filename\n"; return 1; }
 
-    nano "$BACKUP"
-    if [[ $(stat -c %Y "$BACKUP") -gt $oldtime ]] ; then
-        sudo chattr -i "$FILE" && command cp --preserve=all "$BACKUP" "$FILE" && sudo chattr +i "$FILE"
+    if [[ $file =~ ^[[:digit:]] ]]; then
+        file=$(_editrc_files | grep "^$1 " | head -n 1 | cut -f 2 -d ' ')
+    fi
+    [[ -f $file ]] || { printf "File doesn't exist\n"; return 1; }
+    local backup=$(mktemp --tmpdir -d editrc.XXX)"/"$(basename "$file")
+    command cp --preserve=all "$file" "$backup"
+    oldtime=$(stat -c %Y "$backup")
+
+    nano "$backup"
+    if [[ $(stat -c %Y "$backup") -gt $oldtime ]] ; then
+        sudo chattr -i "$file" && command cp --preserve=all "$backup" "$file" && sudo chattr +i "$file"
     else
         echo "No changes."
     fi
 }
 
-_editrc_completions () {
+_editrc_completions() {
     if [[ "${#COMP_WORDS[@]}" != "2" ]]; then
         return
     fi
@@ -172,7 +175,7 @@ complete -F _editrc_completions editrc
 
 # Welcome messages
 
-function welcome () {
+welcome() {
     failed_systemd=$(SYSTEMD_COLORS=1 systemctl --state=failed | sed -e '/^$/,$d' -e 's/^/>>> /')
     if echo "$failed_systemd" | grep failed > /dev/null; then
         echo "$failed_systemd"

@@ -76,7 +76,7 @@ summary() {
 refresh() {
     task "Refreshing Repositories"
 
-#    sudo zypper refresh >/dev/null
+    sudo zypper refresh >/dev/null
 }
 
 vscode() {

@@ -131,7 +131,7 @@
     ir = reset
 
     # files
-    untracked = !git ls-files --others --exclude-from=.gitignore.untracked | xargs ls -lt | cat | head -n 20
+    untracked = !git ls-files -z --others --exclude-from=.gitignore.untracked | xargs --null ls -lt | cat | head -n 20
 
     # log
     l   = log --topo-order --pretty=format:'%C(yellow)%h %C(cyan)%cn %C(blue)%cr%C(reset) %s'

@@ -120,7 +120,7 @@ run() {
         | create_download_spec \
         | download_all
 
-    check_rpm
+    check_rpm || { error "Package signature failed"; exit 1; }
 
     if [[ "$RUN_ZYPPER" == yes ]]; then
         local dir=$(package_dir)
@@ -199,7 +199,13 @@ download_all() {
 
 check_rpm() {
     local dir=$(package_dir)
-    find "$dir" -type f -name "*.rpm" -print0 | xargs -0r rpm --checksig
-}
+    local output
+    output=$(find "$dir" -type f -name "*.rpm" -execdir rpm --checksig "{}" +)
+    local result=$?
+    if (( $result != 0 )); then
+        grep " NOT OK$" <<< "$output"
+    fi
+    return $result
+} 1>&2
 
 main "$@"
