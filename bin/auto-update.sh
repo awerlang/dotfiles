@@ -36,7 +36,7 @@ main() {
 }
 
 notify() {
-    which notify-send >/dev/null || return
+    [[ "$(command -v notify-send)" ]] || return
 
     local summary=$1
     local body=$2

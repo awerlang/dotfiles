@@ -5,9 +5,9 @@ COLOR2='\033[0;34m'
 NC='\033[0m'
 
 main() {
-    target="${HOME}/.local/share/drive-helper"
+    target="${HOME}/.local/share/My/drive-health"
     mkdir "$target"
-    run | tee "${target}/disk-$(date -I).log"
+    run | tee "${target}/$(date -I).log"
 }
 
 run() {
