@@ -2,7 +2,7 @@
 #####################################################################################################
 ##
 ### NAME
-##      %program-name% - #Description#
+##      %program-name% - %Description%
 ##
 ### SYNOPSIS
 ##      Usage: %program-name% [options] command [command-args]...
@@ -113,7 +113,7 @@ notify() {
 
     local summary=$1
     local body=$2
-    notify-send -a "%program-title%" -t 5000 "$summary" "$body"
+    notify-send -a "%program-name%" -t 5000 "$summary" "$body"
 }
 
 result() {

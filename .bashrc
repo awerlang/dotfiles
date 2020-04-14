@@ -162,6 +162,14 @@ editrc() {
     fi
 }
 
+newscript() {
+    local program=$1
+    local file=bin/${program}.sh
+    sed "s/%program-name%/$program/g" "bin/template.sh" >"${file}"
+    editrc "$file"
+    dotfiles add "$file"
+}
+
 _editrc_completions() {
     if [[ "${#COMP_WORDS[@]}" != "2" ]]; then
         return
