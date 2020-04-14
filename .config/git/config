@@ -131,6 +131,7 @@
     ir = reset
 
     # files
+    churn = !git --no-pager log --all --find-renames --find-copies --name-only --format='format:' "$@" | grep -v '^$' | sort | uniq -c | sort -nr | head
     untracked = !git ls-files -z --others --exclude-from=.gitignore.untracked | xargs --null ls -lt | cat | head -n 20
 
     # log

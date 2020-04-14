@@ -49,9 +49,9 @@ alias .....='cd ../../../..'
 alias ls='ls -Fhlv --color=auto'
 alias lsc='ls -Fhlv --color=always'
 alias mkdir='mkdir -vp'
-alias cp='cp -v'
-alias mv='mv -v'
-alias rm='rm -vi'
+alias cp='cp -vn'
+alias mv='mv -vn'
+alias rm='rm -vi --one-file-system'
 alias path='printf "%s\n" "$PATH" | tr -s ":" "\n"'
 alias where='find . -name'
 alias count='sort | uniq -c | sort -hr'
@@ -184,3 +184,5 @@ welcome() {
 }
 
 welcome
+
+set -o noclobber -o pipefail

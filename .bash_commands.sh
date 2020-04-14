@@ -8,6 +8,7 @@ journalctl -b -p 0..3       # log: err
 journalctl -b -p 0..4       # log: warning
 journalctl -p               # log: priority
 journalctl -u               # log: unit
+journalctl -k               # log: kernel ring
 dmesg -H                    # log: kernel ring
 systemctl -a                # services: all
 systemctl -at               # services: all of type
@@ -121,6 +122,7 @@ sed '/pattern/r./input.txt' example.txt # text: insert merge file pattern
 sed '/^$/d' file                        # text: delete empty lines
 sed '/^[[:space:]]*$/d' file            # text: delete whitespace line
 sed --quiet '/^START$/,/END^$/{/^START$/d;/^END$/d;p;}' <<< $'START\nfirst\nEND\nSTART\nsecond\nEND' # text: extract delimiter lines
+sort -k 3                                           # sort: by 3rd column
 sort --ignore-case --human-numeric-sort source.txt  # sort: case insensitive
 sort --reverse --human-numeric-sort source.txt      # sort: reverse sort
 sort --unique source.txt                            # sort: unique
