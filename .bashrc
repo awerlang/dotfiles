@@ -70,6 +70,7 @@ alias newpasswd='pwgen -cnys1 16'
 alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public key copied to clipboard."'
 alias fancy='$HOME/.config/diff-so-fancy/diff-so-fancy | less -FRSX'
 alias json='cat "$1" | python -m json.tool'
+alias decolorize=$'sed \'s/\x1b\[[0-9;]*m//g\''
 
 # sudo
 
