@@ -137,7 +137,7 @@ call_zypper() {
                 --non-interactive \
                 "$command" --details \
                            --dry-run \
-                "${command_args[@]}"
+                "${command_args[@]}" || true
 }
 
 create_download_spec() {

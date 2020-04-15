@@ -184,11 +184,20 @@ complete -F _editrc_completions editrc
 
 # Welcome messages
 
+COLOR1=$(tput setaf 3)
+COLOR2=$(tput setaf 4)
+COLOR3=$(tput setaf 2)
+NC=$(tput sgr0)
+
 welcome() {
-    failed_systemd=$(SYSTEMD_COLORS=1 systemctl --state=failed | sed -e '/^$/,$d' -e 's/^/>>> /')
-    if echo "$failed_systemd" | grep failed > /dev/null; then
-        echo "$failed_systemd"
-        echo ""
+    local failed_systemd=$(SYSTEMD_COLORS=1 systemctl --state=failed | sed -e '/^$/,$d' -e 's/^/>>> /')
+    if grep failed >/dev/null <<<"$failed_systemd"; then
+        printf "%s\n\n" "$failed_systemd"
+    fi
+
+    local rpm_count=$(find "${HOME}/.cache/zypp/packages" -name "*.rpm" 2>/dev/null | wc -l)
+    if (( rpm_count > 0 )); then
+        printf "${COLOR2}>>> New system updates available: %s, run upgrade.sh${NC}\n\n" "$rpm_count"
     fi
 }
 
