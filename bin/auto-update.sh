@@ -9,12 +9,12 @@
 # | code        | Visual Studio Code         |          |
 # | NVIDIA      | NVIDIA                     |          |
 
-set -u
+set -o nounset -o noclobber -o pipefail
 
 COLOR1=$(tput setaf 3)
 COLOR2=$(tput setaf 4)
 COLOR3=$(tput setaf 2)
-NC='\e[0m'
+NC=$(tput sgr0)
 
 exec 3>&1
 
@@ -80,13 +80,13 @@ refresh() {
 }
 
 vscode() {
-    zypper --color repos code > /dev/null || return
+    zypper --color repos code >/dev/null || return
 
     task "Checking Visual Studio Code"
 
     zypper list-updates --repo code | grep "^v " >/dev/null || return
 
-    sudo zypper --non-interactive --color dup --details --auto-agree-with-licenses --from code
+    sudo zypper --non-interactive --color dup --details --auto-agree-with-licenses --from code >/dev/null
     content "New Visual Studio Code installed."
     notify "Visual Studio Code" "New VS Code installed"
 }
@@ -112,14 +112,14 @@ kernel() {
 }
 
 nvidia() {
-    zypper --color repos NVIDIA > /dev/null || return
+    zypper --color repos NVIDIA >/dev/null || return
 
     task "Checking NVIDIA"
 
     local major=$1
     [[ -z "$major" ]] && return
 
-    if ! zypper list-updates --repo NVIDIA | grep "^v " > /dev/null; then
+    if ! zypper list-updates --repo NVIDIA | grep "^v " >/dev/null; then
         result "Waiting for NVIDIA release after major Linux Kernel"
     fi
 }
@@ -133,7 +133,7 @@ system() {
         return
     fi
 
-    zypper list-updates | grep "^v " > /dev/null || return
+    zypper list-updates | grep "^v " >/dev/null || return
 
     zypper-download.sh dup
 
@@ -150,7 +150,7 @@ hotfixes() {
 
     local -a pkgtree
     while IFS= read -r pkg; do
-        pkgtree+=("*$pkg")
+        pkgtree+=('*'"$pkg")
         local deps=$(zypper search --installed-only --requires-pkg $pkg | grep "^i" | awk -F \| '{ print "  └─" $2 }' | grep -v " lib")
         [[ -n "$deps" ]] && pkgtree+=("$deps")
     done <<< "$pkglist"

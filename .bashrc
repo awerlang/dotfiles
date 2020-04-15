@@ -20,7 +20,7 @@ HISTCONTROL=ignoreboth:erasedups
 HISTFILE=~/.bash_commands.sh
 
 for option in autocd dotglob extglob; do
-    shopt -s $option &> /dev/null
+    shopt -s $option &>/dev/null
 done
 
 # dotfiles with bare git repository on home directory

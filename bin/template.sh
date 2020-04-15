@@ -137,7 +137,7 @@ quiet() {
 COLOR1=$(tput setaf 3)
 COLOR2=$(tput setaf 4)
 COLOR3=$(tput setaf 2)
-NC='\e[0m'
+NC=$(tput sgr0)
 
 task() {
     log "${COLOR1}> %s${NC}\n" "${1}"
