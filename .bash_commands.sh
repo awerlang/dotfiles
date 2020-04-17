@@ -21,6 +21,7 @@ systemd-analyze                 # startup
 systemd-analyze critical-chain  # startup
 systemd-analyze blame           # startup
 
+zypper se -i --details | awk '$1 == "i+" && $3 !~ /^(patterns-|openSUSE-|shim|kernel-default|numactl|NetworkManager|mokutil|irqbalance|grub2-|glibc|firewalld|biosdevname)/ && $5 == "package"' | sort -k11    # packages: installed
 zypper search                   # packages
 zypper search --details         # packages
 zypper search --requires --recommends --supplements --suggests                  # packages: dependencies
@@ -66,12 +67,13 @@ snapper -c root list        # storage: fs
 filefrag                    # storage: fs
 filefrag -v                 # storage: fs
 du -hx -d 1 . | sort -hs    # storage: directory size
+awk '$2~/\/([^.]|$)/ { print $2 }' /etc/fstab | xargs sudo du -xhd4 -t 50M | sort -sk2 # storage: larger directories
 
 free --human    # system: free memory
 uname -a        # system: label
 inxi -Fxxxz     # system: properties
 xrandr -q       # system: displays
-xrandr --current # system: displays
+xrandr --current            # system: displays
 xrandr --listactivemonitors # system: displays
 sensors         # system: sensors
 sync            # system: disk cache
@@ -96,7 +98,7 @@ lsof -i :22 # internet port network
 lsof -p $$ # files process
 
 read -r var     # io: read into variable
-read < "/path"  # io: read from file
+read <"/path"   # io: read from file
 socat
 ss -ralnp -f inet
 watch -n 1 -- "ss -o state established '( dport = :http or sport = :http )'"

@@ -168,6 +168,7 @@ newscript() {
     local file=bin/${program}.sh
     sed "s/%program-name%/$program/g" "bin/template.sh" >"${file}"
     editrc "$file"
+    chmod +x "$file"
     dotfiles add "$file"
 }
 

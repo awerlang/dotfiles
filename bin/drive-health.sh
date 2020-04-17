@@ -1,11 +1,13 @@
 #!/bin/bash
 
+set -o errexit -o nounset -o noclobber -o pipefail
+
 COLOR1='\033[0;33m'
 COLOR2='\033[0;34m'
 NC='\033[0m'
 
 main() {
-    target="${HOME}/.local/share/My/drive-health"
+    local target="${HOME}/.local/share/My/drive-health"
     mkdir "$target"
     run | tee "${target}/$(date -I).log"
 }
