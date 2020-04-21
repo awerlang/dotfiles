@@ -1,4 +1,5 @@
 journalctl -b               # log: boot
+journalctl -b -e _KERNEL_SUBSYSTEM= # log: subsystem
 journalctl -b --grep        # log: filter
 journalctl -b | highlight   # log: highlight
 journalctl -b -p 0..0       # log: emerg
