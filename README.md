@@ -56,6 +56,7 @@ Tools:
 
 * `boot-svg.sh`: export boot sequence to .svg/.txt
 * `zypper-download.sh`: downloads .rpm packages in parallel
+* `zypper-changelog.sh`: prints changelogs for updated packages
 
 Local-specific script:
 
