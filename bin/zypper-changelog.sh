@@ -6,6 +6,7 @@
 
 PKG_CACHE_DIR="${1-.}"
 packages=$(find "$PKG_CACHE_DIR" -name *.rpm -exec rpm -q --qf '{}\t%{NAME}\t%{SOURCERPM}\t%{SUMMARY}\n' -p '{}' \; \
+                | awk -F $'\t' 'BEGIN { OFS = FS } $2~/^lib/ { print $1, "~" $2, $3, $4; next; } { print $0 }' \
                 | LC_ALL=C sort -t $'\t' -k2,2 \
                 | sort -s -t $'\t' -k3,3 -u \
                 | sort -s -t $'\t' -k2,2)
@@ -20,6 +21,7 @@ trap "rm -f $temp_chg $temp_diff" EXIT
 pkg_sep=$(printf '=%.0s' {1..72})
 
 while IFS=$'\t' read filename package sourcerpm summary; do
+    package="${package#'~'}"
     if rpm -q --changelog "$package" >"$temp_chg"; then
         temp_pkg_diff=$(rpm -q --changelog -p "$filename" | diff --unchanged-line-format= --old-line-format= --new-line-format='%L' "$temp_chg" -)
         [[ -n "$temp_pkg_diff" ]] || temp_pkg_diff='No new changelogs for this package'
