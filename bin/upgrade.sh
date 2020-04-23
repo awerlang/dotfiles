@@ -3,7 +3,7 @@
 PKG_CACHE_DIR="$HOME/.cache/zypp/packages"
 
 zypper() {
-    sudo zypper --no-refresh --pkg-cache-dir "$PKG_CACHE_DIR" "$@"
+    sudo 'zypper' --no-refresh --pkg-cache-dir "$PKG_CACHE_DIR" "$@"
 }
 
 zypper-changelog.sh "$PKG_CACHE_DIR"

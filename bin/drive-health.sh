@@ -1,4 +1,5 @@
 #!/bin/bash
+#shellcheck disable=SC2059
 
 set -o errexit -o nounset -o noclobber -o pipefail
 
@@ -7,8 +8,9 @@ COLOR2='\033[0;34m'
 NC='\033[0m'
 
 main() {
+    sudo -v
     local target="${HOME}/.local/share/My/drive-health"
-    mkdir "$target"
+    mkdir -p "$target"
     run | tee "${target}/$(date -I).log"
 }
 
@@ -38,7 +40,10 @@ run() {
     printf "\n"
 
     printf "${COLOR1}> S.M.A.R.T.${NC}\n\n"
-    sudo smartctl --scan | awk '{ print $1 } ' | sort | xargs -n1 -I {} sh -c 'printf "${COLOR2}>> {}${NC}\n\n" && sudo smartctl -a {}'
+    for disk in $(sudo smartctl --scan | awk '{ print $1 } ' | sort); do
+        printf "${COLOR2}>> %s${NC}\n\n" "$disk"
+        sudo smartctl -a "$disk"
+    done
     printf "\n"
 }
 

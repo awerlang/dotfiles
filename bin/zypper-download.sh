@@ -81,7 +81,8 @@ read_default_config() {
 }
 
 set_default_config() {
-    local vars=$(read_default_config)
+    local vars
+    vars=$(read_default_config)
     eval "$vars"
 }
 
@@ -123,7 +124,8 @@ run() {
     check_rpm || { error "Package signature failed"; exit 1; }
 
     if [[ "$RUN_ZYPPER" == yes ]]; then
-        local dir=$(package_dir)
+        local dir
+        dir=$(package_dir)
         sudo zypper --pkg-cache-dir "$dir" "${SUB_COMMAND[@]}"
     fi
 }
@@ -141,7 +143,8 @@ call_zypper() {
 }
 
 create_download_spec() {
-    local repo_arrays=$(zypper repos --uri | awk -F "|" '
+    local repo_arrays
+    repo_arrays=$(zypper repos --uri | awk -F "|" '
         function trim(s) {
             gsub(/^ +| +$/, "", s);
             return s;
@@ -198,11 +201,11 @@ download_all() {
 }
 
 check_rpm() {
-    local dir=$(package_dir)
-    local output
+    local dir output
+    dir=$(package_dir)
     output=$(find "$dir" -type f -name "*.rpm" -execdir rpm --checksig "{}" +)
     local result=$?
-    if (( $result != 0 )); then
+    if (( result != 0 )); then
         grep " NOT OK$" <<< "$output"
     fi
     return $result

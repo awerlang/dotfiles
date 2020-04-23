@@ -21,9 +21,10 @@ exec 3>&1
 main() {
     refresh
     vscode
-    local major=$(kernel)
-    local skip_system=$(nvidia "$major")
-    local updates=$(system "$skip_system")
+    local major skip_system updates
+    major=$(kernel)
+    skip_system=$(nvidia "$major")
+    updates=$(system "$skip_system")
     hotfixes
 
     if [[ -n "$updates" ]]; then
@@ -44,16 +45,15 @@ notify() {
 }
 
 result() {
-    local text=$1
     printf "%s\n" "$1"
 }
 
 error() {
-    local text=$1
     printf "%s\n" "$1"
 } >&2
 
 log() {
+    #shellcheck disable=SC2059
     printf "$@"
 } >&3
 
@@ -94,7 +94,8 @@ vscode() {
 kernel() {
     task "Checking Linux Kernel"
 
-    local major=$(zypper list-updates | awk -v kernel="kernel-default" '
+    local major
+    major=$(zypper list-updates | awk -v kernel="kernel-default" '
         $5 == kernel {
             split($7, old, ".");
             split($9, new, ".");
@@ -145,20 +146,23 @@ system() {
 hotfixes() {
     task "Checking Hot-Fixes"
 
-    local pkglist=$(zypper list-updates | grep "openSUSE-Tumbleweed-Update" | awk -F \| '{ print $3 }')
+    local pkglist
+    pkglist=$(zypper list-updates | grep "openSUSE-Tumbleweed-Update" | awk -F \| '{ print $3 }')
     [[ -n "$pkglist" ]] || return
 
     local -a pkgtree
     while IFS= read -r pkg; do
         pkgtree+=('*'"$pkg")
-        local deps=$(zypper search --installed-only --requires-pkg $pkg | grep "^i" | awk -F \| '{ print "  └─" $2 }' | grep -v " lib")
+        local deps
+        deps=$(zypper search --installed-only --requires-pkg "$pkg" | grep "^i" | awk -F \| '{ print "  └─" $2 }' | grep -v " lib")
         [[ -n "$deps" ]] && pkgtree+=("$deps")
     done <<< "$pkglist"
     content "Found hot-fixes for installed packages."
     content "Packages:"
-    local pkgtree_str=$(printf '%s\n' "${pkgtree[@]}")
-    content "$pkgtree"
-    notify "Found hot-fixes" "Packages: \n$pkgtree"
+    local pkgtree_str
+    pkgtree_str=$(printf '%s\n' "${pkgtree[@]}")
+    content "$pkgtree_str"
+    notify "Found hot-fixes" "Packages: \n$pkgtree_str"
 }
 
 main

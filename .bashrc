@@ -71,6 +71,7 @@ alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public k
 alias fancy='$HOME/.config/diff-so-fancy/diff-so-fancy | less -FRSX'
 alias json='cat "$1" | python -m json.tool'
 alias decolorize=$'sed \'s/\x1b\[[0-9;]*m//g\''
+alias shlint='\ls bin/*.sh | entr -s "shellcheck --color=always --exclude=SC2016 bin/*.sh"'
 
 # sudo
 

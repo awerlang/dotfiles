@@ -35,7 +35,7 @@ set -o errexit -o nounset -o noclobber -o pipefail
 #shopt -s nullglob
 
 run() {
-    # script body
+    : # script body
 }
 
 parse_opts() {
@@ -46,8 +46,8 @@ parse_opts() {
         (h) help; exit 0;;
         (v) version; exit 0;;
         (c) configuration | about; exit 0;;
-        (s) readonly STRING_OPTION="$OPTARG";;
-        (b) readonly BOOL_OPTION="yes";;
+        # (s) readonly STRING_OPTION="$OPTARG";;
+        # (b) readonly BOOL_OPTION="yes";;
         (*) usage; exit 1;;
         esac
     done
@@ -59,7 +59,7 @@ parse_opts() {
         exit 1;
     fi
 
-    readonly SUB_COMMAND=("$@")
+    # readonly SUB_COMMAND=("$@")
 }
 
 # -- boilerplate code below  -- #
@@ -78,7 +78,8 @@ read_default_config() {
 }
 
 set_default_config() {
-    local vars=$(read_default_config)
+    local vars
+    vars=$(read_default_config)
     eval "$vars"
 }
 
@@ -117,16 +118,15 @@ notify() {
 }
 
 result() {
-    local text=$1
     printf "%s\n" "$1"
 }
 
 error() {
-    local text=$1
     printf "%s\n" "$1"
 } >&2
 
 log() {
+    #shellcheck disable=SC2059
     printf "$@"
 } >&3
 
@@ -152,9 +152,9 @@ summary() {
 }
 
 logpath() {
-    local target=${HOME}/.local/share/My/%program-name%
+    local target=$HOME/.local/share/My/%program-name%
     mkdir -p "$target"
-    result ${target}/$(date -I)
+    result "${target}/$(date -I)"
 }
 
 main "$@"
