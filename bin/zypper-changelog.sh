@@ -5,12 +5,12 @@
 # compare changelogs between downloaded rpm packages and installed packages
 
 PKG_CACHE_DIR="${1-.}"
-packages=$(find "$PKG_CACHE_DIR" -name '*.rpm' -exec rpm -q --qf '{}\t%{NAME}\t%{SOURCERPM}\t%{SUMMARY}\n' -p '{}' \; \
-                | awk -F $'\t' 'BEGIN { OFS = FS } $2~/^lib/ { print $1, "~" $2, $3, $4; next; } { print $0 }' \
+packages=$(find "$PKG_CACHE_DIR" -name '*.rpm' -exec rpm -q --qf '{}\t%{NAME}\t%{SOURCERPM}\t%{VERSION}\t%{SUMMARY}\n' -p '{}' \; \
+                | awk -F $'\t' 'BEGIN { OFS = FS } $2~/^lib/ { print $1, "~" $2, $3, $4, $5; next; } { print $0 }' \
                 | LC_ALL=C sort -t $'\t' -k2,2 \
                 | sort -s -t $'\t' -k3,3 -u \
                 | sort -s -t $'\t' -k2,2 \
-                | awk -F $'\t' 'BEGIN { OFS = FS } { print $1, $2, $4 }' \
+                | awk -F $'\t' 'BEGIN { OFS = FS } { print $1, $2, $4, $5 }' \
           )
 
 [[ -z "$packages" ]] && exit
@@ -22,17 +22,36 @@ trap 'rm -f $temp_chg $temp_diff' EXIT
 
 pkg_sep=$(printf '=%.0s' {1..72})
 
-while IFS=$'\t' read -r filename package summary; do
+declare -a new_packages rebuilds empty_changelogs
+while IFS=$'\t' read -r filename package new_version summary; do
     package="${package#'~'}"
     if rpm -q --changelog "$package" >"$temp_chg"; then
         temp_pkg_diff=$(rpm -q --changelog -p "$filename" | diff --unchanged-line-format= --old-line-format= --new-line-format='%L' "$temp_chg" -)
-        [[ -n "$temp_pkg_diff" ]] || temp_pkg_diff='No new changelogs for this package'
+        if [[ -n "$temp_pkg_diff" ]]; then
+            printf '%s\n%s: %s\n%s\n\n%s\n\n' "$pkg_sep" "$package" "$summary" "$pkg_sep" "$temp_pkg_diff" >>"$temp_diff"
+        else
+            version=$(rpm -q --qf '%{VERSION}' "$package")
+            [[ "$new_version" == "$version" ]] && rebuilds+=("$package") || empty_changelogs+=("$package")
+        fi
     else
-        temp_pkg_diff='Package not yet installed'
+        new_packages+=("$package")
     fi
-
-    printf '%s\n%s: %s\n%s\n\n%s\n\n' "$pkg_sep" "$package" "$summary" "$pkg_sep" "$temp_pkg_diff" >>"$temp_diff"
 done <<<"$packages"
+
+print_array() {
+    local title
+    title="$1"
+    shift
+
+    (( "$#" != 0 )) || return
+    printf '%s\n%s\n%s\n\n' "$pkg_sep" "$title" "$pkg_sep"
+    printf '* %s\n' "$@"
+    printf '\n'
+} >>"$temp_diff"
+
+print_array "New packages" "${new_packages[@]}"
+print_array "Rebuilds" "${rebuilds[@]}"
+print_array "Empty changelogs" "${empty_changelogs[@]}"
 
 # display diff using PAGER
 
