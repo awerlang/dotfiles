@@ -17,7 +17,8 @@ export LESSHISTFILE=-
 export NODE_REPL_HISTORY=""
 
 HISTCONTROL=ignoreboth:erasedups
-HISTFILE=~/.bash_commands.sh
+history -r ~/.bash_commands.sh
+unset HISTFILE
 
 for option in autocd dotglob extglob; do
     shopt -s $option &>/dev/null
@@ -130,16 +131,6 @@ serve() {
     python3 -m http.server $port
 }
 
-# add/remove immutable flag to version-controlled files
-protect-config() {
-    local flag=$1
-    if [[ -n "$flag" ]]; then
-        dotfiles ls-files | xargs -I @ -- find @ -type f -execdir sudo chattr $flag {} +
-    else
-        dotfiles ls-files | xargs -I @ -- find @ -type f -exec lsattr {} +
-    fi
-}
-
 _editrc_files() {
     dotfiles ls-files | nl -w2 -n'rz' -s' '
 }
@@ -156,9 +147,9 @@ editrc() {
     command cp --preserve=all "$file" "$backup"
     oldtime=$(stat -c %Y "$backup")
 
-    nano "$backup"
+    $EDITOR "$backup"
     if [[ $(stat -c %Y "$backup") -gt $oldtime ]] ; then
-        sudo chattr -i "$file" && command cp --preserve=all "$backup" "$file" && sudo chattr +i "$file"
+        command cp --preserve=all "$backup" "$file"
     else
         echo "No changes."
     fi
@@ -168,8 +159,8 @@ newscript() {
     local program=$1
     local file=bin/${program}.sh
     sed "s/%program-name%/$program/g" "bin/template.sh" >"${file}"
-    editrc "$file"
     chmod +x "$file"
+    editrc "$file"
     dotfiles add "$file"
 }
 

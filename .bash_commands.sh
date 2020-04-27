@@ -146,8 +146,6 @@ lsattr      # files: attributes
 chattr      # files: attributes
 cp f{,~}    # file: backup copy
 
-protect-config +i
-protect-config -i
 editrc .bashrc
 editrc .bash_commands.sh
 editrc 
