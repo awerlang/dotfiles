@@ -31,8 +31,7 @@
 ##
 #####################################################################################################
 
-set -o errexit -o nounset -o noclobber -o pipefail
-#shopt -s nullglob
+set -o nounset -o noclobber -o pipefail
 
 run() {
     : # script body
