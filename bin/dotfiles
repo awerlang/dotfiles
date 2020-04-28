@@ -1,0 +1,238 @@
+#!/bin/bash
+#####################################################################################################
+##
+### NAME
+##      dotfiles - dotfiles installer & management
+##
+### SYNOPSIS
+##      Usage: dotfiles [options] command [command-args]...
+##
+##      Options:
+##
+##          -c              Display default configuration.
+##          -h              Display this message and exit.
+##          -v              Display version information and exit.
+##
+##      Commands:
+##
+##          install pkg...
+##          pull [args...]
+##          ssh-key
+##          (any git command)
+##
+### CONFIGURATION
+##      DOTFILES_DIR        = ${HOME}/.config/dotfiles
+##
+### LICENSE
+##      dotfiles v0.1
+##
+##      Copyright (C) 2020 André Werlang
+##
+##      License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+##      This is free software: you are free to change and redistribute it.
+##      There is NO WARRANTY, to the extent permitted by law.
+##
+#####################################################################################################
+
+set -o nounset -o noclobber -o pipefail
+
+run() {
+    (( "$#" != 0 )) || fail 'Error: usage: dotfiles command [...args]'
+
+    local command="$1"
+    shift
+
+    case "$command" in
+        install) install "$@" ;;
+        pull) pull "$@"  ;;
+        ssh-key) ssh_key ;;
+        *) dotfiles "$command" "$@" ;;
+    esac
+}
+
+dotfiles() {
+    # these dotfiles are maintained as a bare repository in a child directory
+    # no soft/hard links are created, since files are checked out directly in the right place
+
+    git --git-dir="$(dotfiles_dir)"/ --work-tree="$HOME" "$@"
+}
+
+pull() {
+    dotfiles pull "$@"
+
+    install_deps
+}
+
+install() {
+    confirm "Install dotfiles (local files will be overwritten)" || return
+    (( "$#" != 0 )) || fail 'Error: usage: dotfiles install git://url'
+    [[ ! -a "$(dotfiles_dir)" ]] || fail 'Error: path '"'$(dotfiles_dir)'"' already exists'
+
+    local git_uri="$1"
+
+    sudo zypper --quiet install git-core
+
+    git clone --bare "$git_uri" "$(dotfiles_dir)"
+
+    # the next step will overwrite local files
+    dotfiles checkout -f
+    dotfiles submodule update --init --recursive
+
+    install_deps
+    ssh_key
+}
+
+install_deps() {
+    # required packages for this environment
+
+    sudo zypper --quiet install aria2 \
+                                bat \
+                                entr \
+                                fd \
+                                fish \
+                                fzf \
+                                jq \
+                                libnotify-tools \
+                                libxml2-tools \
+                                meld \
+                                nodejs12 \
+                                pwgen \
+                                ripgrep \
+                                ShellCheck \
+                                tmux \
+                                unrar_wrapper \
+                                urlview \
+                                xclip
+}
+
+ssh_key() {
+    confirm "Generate a SSH key for this machine" || return
+
+    read -r -p "Your email address: "
+    ssh-keygen -t rsa -b 4096 -C "$REPLY"
+
+    eval "$(ssh-agent -s)"
+    ssh-add ~/.ssh/id_rsa
+
+    summary 'Execute `pubkey` to copy public key to keyboard, whenever needed.'
+}
+
+parse_opts() {
+    local OPTIND OPTARG flag
+    while getopts hvczd: flag
+    do
+        case "$flag" in
+        (h) help; exit 0;;
+        (v) version; exit 0;;
+        (c) configuration | about; exit 0;;
+        (*) usage; exit 1;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    if [ $# -eq 0 ]; then
+        error "expected required argument -- command"
+        usage;
+        exit 1;
+    fi
+
+    readonly SUB_COMMAND=("$@")
+}
+
+dotfiles_dir() {
+    echo "$DOTFILES_DIR" | subst_vars
+}
+
+confirm() {
+    read -r -n 1 -p "$1 (y/N)? "
+    echo
+    [[ $REPLY =~ ^[Yy]$ ]]
+}
+
+# -- boilerplate code below  -- #
+
+exec 3>&1
+
+main() {
+    parse_opts "$@"
+    set_default_config
+
+    run "${SUB_COMMAND[@]}"
+}
+
+read_default_config() {
+    configuration | awk '/[[:alnum:]_ *= *.*]/{ print "[[ -v " $1 " ]] || readonly " $1 $2 "\x27" $3 "\x27" }'
+}
+
+set_default_config() {
+    local vars
+    vars=$(read_default_config)
+    eval "$vars"
+}
+
+subst_vars() {
+    export VARIABLE
+    envsubst '$HOME'
+}
+
+about() {
+    set_default_config
+    subst_vars
+}
+
+usage() {
+    sed '/^### SYNOPSIS$/,/^###/!d;//d;s/^## \{0,6\}//' "$0" | about
+}
+
+version() {
+    sed '/^### LICENSE$/,/^###/!d;//d;s/^## \{0,6\}//' "$0" | about
+}
+
+help() {
+    sed '/^##$/,/^####/!d;//d;s/^##.\{0,2\}//' "$0" | about
+}
+
+configuration() {
+    sed '/^### CONFIGURATION$/,/^###/!d;//d;s/^## \{0,6\}//' "$0"
+}
+
+result() {
+    printf "%s\n" "$1"
+}
+
+error() {
+    printf "%s\n" "$1"
+} >&2
+
+fail() {
+    error "$1"
+    exit "${2:-1}"
+}
+
+log() {
+    #shellcheck disable=SC2059
+    printf "$@"
+} >&3
+
+quiet() {
+    exec 3>/dev/null
+}
+
+COLOR1=$(tput setaf 3)
+COLOR2=$(tput setaf 4)
+COLOR3=$(tput setaf 2)
+NC=$(tput sgr0)
+
+task() {
+    log "${COLOR1}> %s${NC}\n" "${1}"
+}
+
+content() {
+    log "${COLOR2}  > %s${NC}\n" "${1}"
+}
+
+summary() {
+    log "${COLOR3}> %s${NC}\n" "${1}"
+}
+
+main "$@"
