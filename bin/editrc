@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -o nounset -o noclobber -o pipefail
+
+_editrc_files() {
+    dotfiles ls-files | nl -w2 -n'rz' -s' '
+}
+
+file=$1
+[[ -n $file ]] || { printf "Missing filename\n"; exit 1; }
+
+if [[ $file =~ ^[[:digit:]] ]]; then
+    file=$(_editrc_files | grep "^$1 " | head -n 1 | cut -f 2 -d ' ')
+fi
+[[ -f $file ]] || { printf "File doesn't exist\n"; exit 1; }
+
+$EDITOR "$file"

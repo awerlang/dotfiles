@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Welcome messages
+
+set -o nounset -o noclobber -o pipefail
+
+COLOR2=$(tput setaf 4)
+NC=$(tput sgr0)
+
+failed_systemd=$(SYSTEMD_COLORS=1 systemctl --state=failed | sed -e '/^$/,$d' -e 's/^/>>> /')
+if grep failed >/dev/null <<<"$failed_systemd"; then
+    printf "%s\n\n" "$failed_systemd"
+fi
+
+rpm_count=$(find "${HOME}/.cache/zypp/packages" -name "*.rpm" 2>/dev/null | wc -l)
+if (( rpm_count > 0 )); then
+    printf "${COLOR2}>>> New system updates available: %s, run upgrade.sh${NC}\n\n" "$rpm_count"
+fi

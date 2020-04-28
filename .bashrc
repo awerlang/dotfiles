@@ -24,12 +24,6 @@ for option in autocd dotglob extglob; do
     shopt -s $option &>/dev/null
 done
 
-# dotfiles with bare git repository on home directory
-
-function dotfiles {
-    git --git-dir="$HOME/.config/dotfiles/" --work-tree="$HOME" "$@"
-}
-
 complete -o default -o nospace -F _git dotfiles
 
 export PS1='`if [ $? = 0 ]; then echo "\[\033[01;32m\]✔"; else echo "\[\033[01;31m\]✘"; fi` \[\033[38;5;250m\]\t\[$(tput sgr0)\]\[\033[38;5;15m\] \u@\h:\[$(tput sgr0)\]\[\033[38;5;250m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\] \\$\[$(tput sgr0)\] '
@@ -72,7 +66,7 @@ alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public k
 alias fancy='$HOME/.config/diff-so-fancy/diff-so-fancy | less -FRSX'
 alias json='cat "$1" | python -m json.tool'
 alias decolorize=$'sed \'s/\x1b\[[0-9;]*m//g\''
-alias shlint='\ls bin/*.sh | entr -s "shellcheck --color=always --exclude=SC2016 bin/*.sh"'
+alias shlint='\ls bin/* | entr -s "shellcheck --color=always --exclude=SC2016 bin/*"'
 
 # sudo
 
@@ -98,70 +92,12 @@ highlight() {
     grep --color=always --extended-regexp -e "^" -e "$*" | less -R
 }
 
-# Advanced directory creation
 mkd() {
     [[ $1 ]] && mkdir "$1" && cd "$1"
 }
 
-extract() {
-    if [[ -f $1 ]] ; then
-      case $1 in
-        *.tar.bz2)   tar xjf "$1"     ;;
-        *.tar.gz)    tar xzf "$1"     ;;
-        *.bz2)       bunzip2 "$1"     ;;
-        *.rar)       unrar x "$1"     ;;
-        *.gz)        gunzip "$1"      ;;
-        *.tar)       tar xf "$1"      ;;
-        *.tbz2)      tar xjf "$1"     ;;
-        *.tgz)       tar xzf "$1"     ;;
-        *.zip)       unzip "$1"       ;;
-        *.Z)         uncompress "$1"  ;;
-        *.7z)        7z x "$1"        ;;
-        *)           echo "'$1' cannot be extracted via extract()" ;;
-       esac
-     else
-         echo "'$1' is not a valid file"
-     fi
-}
-
-# simple file server over HTTP
-serve() {
-    local port=${1:-8000}
-    sleep 1 && firefox localhost:$port &
-    python3 -m http.server $port
-}
-
 _editrc_files() {
     dotfiles ls-files | nl -w2 -n'rz' -s' '
-}
-
-editrc() {
-    local file=$1
-    [[ -n $file ]] || { printf "Missing filename\n"; return 1; }
-
-    if [[ $file =~ ^[[:digit:]] ]]; then
-        file=$(_editrc_files | grep "^$1 " | head -n 1 | cut -f 2 -d ' ')
-    fi
-    [[ -f $file ]] || { printf "File doesn't exist\n"; return 1; }
-    local backup=$(mktemp --tmpdir -d editrc.XXX)"/"$(basename "$file")
-    command cp --preserve=all "$file" "$backup"
-    oldtime=$(stat -c %Y "$backup")
-
-    $EDITOR "$backup"
-    if [[ $(stat -c %Y "$backup") -gt $oldtime ]] ; then
-        command cp --preserve=all "$backup" "$file"
-    else
-        echo "No changes."
-    fi
-}
-
-newscript() {
-    local program=$1
-    local file=bin/${program}.sh
-    sed "s/%program-name%/$program/g" "bin/template.sh" >"${file}"
-    chmod +x "$file"
-    editrc "$file"
-    dotfiles add "$file"
 }
 
 _editrc_completions() {
@@ -177,23 +113,8 @@ complete -F _editrc_completions editrc
 
 # Welcome messages
 
-COLOR1=$(tput setaf 3)
-COLOR2=$(tput setaf 4)
-COLOR3=$(tput setaf 2)
-NC=$(tput sgr0)
-
-welcome() {
-    local failed_systemd=$(SYSTEMD_COLORS=1 systemctl --state=failed | sed -e '/^$/,$d' -e 's/^/>>> /')
-    if grep failed >/dev/null <<<"$failed_systemd"; then
-        printf "%s\n\n" "$failed_systemd"
-    fi
-
-    local rpm_count=$(find "${HOME}/.cache/zypp/packages" -name "*.rpm" 2>/dev/null | wc -l)
-    if (( rpm_count > 0 )); then
-        printf "${COLOR2}>>> New system updates available: %s, run upgrade.sh${NC}\n\n" "$rpm_count"
-    fi
-}
-
 welcome
+
+# Default options for interactive mode
 
 set -o noclobber -o pipefail

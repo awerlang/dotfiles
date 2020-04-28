@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -o nounset -o noclobber -o pipefail
+
+program="$1"
+file="${HOME}/bin/${program}"
+sed "s/%program-name%/${program}/g" "${HOME}/bin/template.sh" >"${file}"
+chmod +x "$file"
+editrc "$file"
+dotfiles add "$file"

@@ -49,8 +49,8 @@ dotfiles commit -a
 dotfiles add -p
 dotfiles add -u
 dotfiles add 
-dotfiles diff --staged | fancy
-dotfiles diff | fancy
+dotfiles diff --staged
+dotfiles diff
 dotfiles status
 
 smartctl -a /dev/nvme0n1    # storage: health
