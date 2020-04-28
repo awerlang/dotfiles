@@ -46,6 +46,7 @@ dotfiles push
 dotfiles camend -a
 dotfiles commit -a -m ""
 dotfiles commit -a
+dotfiles commit
 dotfiles add -p
 dotfiles add -u
 dotfiles add 
@@ -69,6 +70,7 @@ filefrag                    # storage: fs
 filefrag -v                 # storage: fs
 du -hx -d 1 . | sort -hs    # storage: directory size
 awk '$2~/\/([^.]|$)/ { print $2 }' /etc/fstab | xargs sudo du -xhd4 -t 50M | sort -sk2 # storage: larger directories
+sudo find `awk '$3~/btrfs/ && $2~/\/([^.]|$)/ { print $2 }' /etc/fstab` -xdev -type d -print0 | xargs -0 -s 32768 sudo lsattr -d 2>/dev/null | awk '$1~/C/ {print $NF}' | sort -u # storage: nodatacow directories
 
 free --human    # system: free memory
 uname -a        # system: label
