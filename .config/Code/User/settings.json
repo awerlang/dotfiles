@@ -1,0 +1,7 @@
+{
+    "telemetry.enableCrashReporter": false,
+    "telemetry.enableTelemetry": false,
+    "update.mode": "manual",
+    "window.zoomLevel": 0,
+    "workbench.enableExperiments": false
+}
