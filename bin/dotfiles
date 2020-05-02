@@ -89,17 +89,18 @@ install_deps() {
                                 bat \
                                 entr \
                                 fd \
-                                fish \
                                 fzf \
                                 jq \
                                 libnotify-tools \
                                 libxml2-tools \
                                 meld \
                                 nodejs12 \
+                                powerline \
                                 pwgen \
                                 ripgrep \
                                 ShellCheck \
                                 tmux \
+                                tmux-powerline \
                                 unrar_wrapper \
                                 urlview \
                                 xclip

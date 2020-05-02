@@ -26,14 +26,12 @@ done
 
 complete -o default -o nospace -F _git dotfiles
 
-export PS1='`if [ $? = 0 ]; then echo "\[\033[01;32m\]✔"; else echo "\[\033[01;31m\]✘"; fi` \[\033[38;5;250m\]\t\[$(tput sgr0)\]\[\033[38;5;15m\] \u@\h:\[$(tput sgr0)\]\[\033[38;5;250m\]\w\[$(tput sgr0)\]\[\033[38;5;15m\] \\$\[$(tput sgr0)\] '
-
 # git repository status for bash prompt
 
-if [[ -f "$HOME/.config/bash-git-prompt/gitprompt.sh" ]]; then
-    GIT_PROMPT_ONLY_IN_REPO=1
-    source "$HOME/.config/bash-git-prompt/gitprompt.sh"
-fi
+powerline-daemon -q
+POWERLINE_BASH_CONTINUATION=1
+POWERLINE_BASH_SELECT=1
+source /usr/share/powerline/bash/powerline.sh
 
 # shell helpers
 
