@@ -41,8 +41,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
-alias ls='ls -Fhlv --color=auto'
-alias lsc='ls -Fhlv --color=always'
+alias ll='ls -Fhlv'
 alias mkdir='mkdir -vp'
 alias cp='cp -vn'
 alias mv='mv -vn'
@@ -66,7 +65,9 @@ alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public k
 alias fancy='$HOME/.config/diff-so-fancy/diff-so-fancy | less -FRSX'
 alias json='cat "$1" | python -m json.tool'
 alias decolorize=$'sed \'s/\x1b\[[0-9;]*m//g\''
-alias shlint='\ls bin/* | entr -s "shellcheck --color=always --exclude=SC2016 bin/*"'
+alias shlint='ls bin/* | entr -s "shellcheck --color=always --exclude=SC2016 bin/*"'
+alias wanip4='dig @resolver1.opendns.com -4 myip.opendns.com A +short'
+alias wanip6='dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short'
 
 # sudo
 

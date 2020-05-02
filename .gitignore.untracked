@@ -12,5 +12,6 @@
 .kde4
 .nv
 .mozilla
+.vscode
 Downloads
 *.local
