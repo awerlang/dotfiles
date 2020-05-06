@@ -9,7 +9,7 @@ zypper() {
 zypper-changelog.sh "$PKG_CACHE_DIR"
 if zypper dup --details --auto-agree-with-licenses; then
     zypper clean
-    sudo rpmconfigcheck
+    sudo rpmconfigcheck > >(while read line; do echo -e "\e[01;31m$line\e[0m" >&2; done)
     local-overrides.sh
 fi
 
