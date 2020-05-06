@@ -15,13 +15,10 @@
         				"function": "powerline.segments.common.env.virtualenv",
         				"priority": 50
         			},
-        			{
-        				"function": "powerline.segments.common.vcs.branch",
-        				"priority": 40,
-        				"args": {
-                            "status_colors": true
-                       }
-        			},
+           			{
+                        "function": "powerline_gitstatus.gitstatus",
+                        "priority": 40
+                    },
         			{
         				"function": "powerline.segments.shell.cwd",
         				"priority": 10
