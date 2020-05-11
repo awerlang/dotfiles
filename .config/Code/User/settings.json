@@ -1,7 +1,9 @@
 {
     "telemetry.enableCrashReporter": false,
     "telemetry.enableTelemetry": false,
-    "update.mode": "manual",
+    "update.mode": "none",
     "window.zoomLevel": 0,
-    "workbench.enableExperiments": false
+    "workbench.enableExperiments": false,
+    "extensions.showRecommendationsOnlyOnDemand": true,
+    "workbench.settings.enableNaturalLanguageSearch": false
 }
