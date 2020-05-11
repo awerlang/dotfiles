@@ -58,7 +58,7 @@ alias dep='zypper search --requires-pkg --provides-pkg --recommends-pkg --supple
 # tools
 
 alias clip='xclip -selection clipboard'
-alias newpasswd='pwgen -cnys1 16'
+alias newpasswd='read -r -n 16 pass < <(LC_ALL=C tr -dc "[:graph:]" < /dev/urandom) && echo $pass'
 alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public key copied to clipboard."'
 alias fancy='$HOME/.config/diff-so-fancy/diff-so-fancy | less -FRSX'
 alias json='cat "$1" | python -m json.tool'

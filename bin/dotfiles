@@ -96,7 +96,6 @@ install_deps() {
                                 meld \
                                 nodejs12 \
                                 powerline \
-                                pwgen \
                                 ripgrep \
                                 ShellCheck \
                                 tmux \
