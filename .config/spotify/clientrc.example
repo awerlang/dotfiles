@@ -1,0 +1,4 @@
+# copy to ./clientrc and fill these settings
+# generate from https://developer.spotify.com/dashboard/applications
+SP_CLIENT_ID=""
+SP_CLIENT_SECRET=""
