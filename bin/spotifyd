@@ -18,4 +18,7 @@ exec bwrap --ro-bind /usr /usr \
            --unshare-all \
            --share-net \
            --die-with-parent \
-           /usr/local/bin/spotifyd --no-daemon --zeroconf-port 57621
+           /usr/local/bin/spotifyd --no-daemon \
+                                   --backend pulseaudio \
+                                   --zeroconf-port 57621 \
+                                   --volume-normalisation
