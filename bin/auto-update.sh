@@ -80,7 +80,7 @@ refresh() {
 }
 
 vscode() {
-    zypper --color repos code >/dev/null || return
+    zypper repos code &>/dev/null || return
 
     task "Checking Visual Studio Code"
 
@@ -113,7 +113,7 @@ kernel() {
 }
 
 nvidia() {
-    zypper --color repos NVIDIA >/dev/null || return
+    zypper repos NVIDIA &>/dev/null || return
 
     task "Checking NVIDIA"
 
