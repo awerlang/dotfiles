@@ -87,6 +87,7 @@ install_deps() {
 
     sudo zypper --quiet install aria2 \
                                 bat \
+                                bubblewrap \
                                 entr \
                                 fd \
                                 fzf \
