@@ -1,0 +1,8 @@
+#!/bin/bash
+set -euo pipefail
+
+exec bwrap --ro-bind / / \
+           --dev /dev \
+           --unshare-all \
+           --die-with-parent \
+           -- /usr/local/bin/delta --plus-color="#5CCD5C" --minus-color="#CD5C5C" --theme='Monokai Extended Bright' "$@"

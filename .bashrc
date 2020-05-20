@@ -10,6 +10,8 @@ fi
 
 # bash options
 
+export COLORTERM=truecolor
+export PAGER="less -FRS"
 export MANPAGER="less -X"
 export EDITOR='nano'
 export VISUAL='nano'
@@ -60,7 +62,6 @@ alias dep='zypper search --requires-pkg --provides-pkg --recommends-pkg --supple
 alias clip='xclip -selection clipboard'
 alias newpasswd='read -r -n 16 pass < <(LC_ALL=C tr -dc "[:graph:]" < /dev/urandom) && echo $pass'
 alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public key copied to clipboard."'
-alias fancy='$HOME/.config/diff-so-fancy/diff-so-fancy | less -FRSX'
 alias json='cat "$1" | python -m json.tool'
 alias decolorize=$'sed \'s/\x1b\[[0-9;]*m//g\''
 alias shlint='ls bin/* | entr -s "shellcheck --external-sources --color=always --exclude=SC2016 bin/*"'
@@ -71,7 +72,7 @@ alias wanip6='dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short'
 
 alias btrfs='sudo btrfs'
 alias etckeeper='sudo etckeeper'
-alias etcdiff='etckeeper vcs diff | fancy'
+alias etcdiff='etckeeper vcs diff | delta'
 alias journalctl='sudo journalctl'
 alias rpmconfigcheck='sudo rpmconfigcheck'
 alias snapper='sudo snapper'
@@ -84,7 +85,7 @@ alias g='git'
 complete -o default -o nospace -F _git g
 
 diff() {
-    command diff -u "$1" "$2" | fancy
+    command diff -u "$1" "$2" | delta
 }
 
 highlight() {
