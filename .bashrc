@@ -10,7 +10,6 @@ fi
 
 # bash options
 
-export COLORTERM=truecolor
 export PAGER="less -FRS"
 export MANPAGER="less -X"
 export EDITOR='nano'
