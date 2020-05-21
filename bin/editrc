@@ -6,7 +6,11 @@ _editrc_files() {
     dotfiles ls-files | nl -w2 -n'rz' -s' '
 }
 
-file=$1
+if (( $# > 0 )); then
+    file=$1
+else
+    file=$(dotfiles ls-files | fzf --preview 'bat --style=plain --color=always {}') || exit
+fi
 [[ -n $file ]] || { printf "Missing filename\n"; exit 1; }
 
 if [[ $file =~ ^[[:digit:]] ]]; then
