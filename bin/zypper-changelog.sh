@@ -56,5 +56,5 @@ print_array "Empty changelogs" "${empty_changelogs[@]}"
 # display diff using PAGER
 
 if [[ -s "$temp_diff" ]]; then
-    "${PAGER-less}" "$temp_diff"
+    ${PAGER-less} "$temp_diff"
 fi
