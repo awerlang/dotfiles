@@ -5,4 +5,8 @@ exec bwrap --ro-bind / / \
            --dev /dev \
            --unshare-all \
            --die-with-parent \
-           -- /usr/local/bin/delta --plus-color="#5CCD5C" --minus-color="#CD5C5C" --theme='Monokai Extended Bright' "$@"
+           -- /usr/local/bin/delta "$@" --theme='zenburn' \
+                                        --plus-color="#00431B" \
+                                        --plus-emph-color="#008F39" \
+                                        --minus-color="#43001B" \
+                                        --minus-emph-color="#8F0039"

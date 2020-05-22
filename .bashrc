@@ -12,8 +12,8 @@ fi
 
 export PAGER="less -FRS"
 export MANPAGER="less -X"
-export EDITOR='nano'
-export VISUAL='nano'
+export EDITOR='micro'
+export VISUAL='micro'
 export LESSHISTFILE=-
 export NODE_REPL_HISTORY=""
 
@@ -77,7 +77,7 @@ alias journalctl='sudo journalctl'
 alias rpmconfigcheck='sudo rpmconfigcheck'
 alias snapper='sudo snapper'
 alias zypper='sudo zypper'
-alias visudo='sudo EDITOR=nano visudo'
+alias visudo='sudo visudo'
 
 alias filefrag='/usr/sbin/filefrag'
 
@@ -94,6 +94,10 @@ highlight() {
 
 mkd() {
     [[ $1 ]] && mkdir "$1" && cd "$1"
+}
+
+edit() {
+    $EDITOR "$(browse)"
 }
 
 _editrc_files() {

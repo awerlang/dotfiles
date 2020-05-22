@@ -1,0 +1,4 @@
+{
+    "Alt-/": "lua:comment.comment",
+    "CtrlW": "Save,Quit"
+}

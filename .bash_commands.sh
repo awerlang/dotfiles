@@ -29,15 +29,15 @@ zypper search --requires --recommends --supplements --suggests                  
 zypper search --requires-pkg --recommends-pkg --supplements-pkg --suggests-pkg  # packages: provides
 
 etckeeper commit -m ''
-etckeeper vcs diff $(etckeeper vcs rev-list --max-parents=0 HEAD) | fancy
+etckeeper vcs diff $(etckeeper vcs rev-list --max-parents=0 HEAD) | delta
 etckeeper vcs log
 etckeeper vcs log --oneline
 etckeeper vcs log sudoers
 etckeeper vcs checkout -- 
 etckeeper vcs reset HEAD^
 etckeeper vcs reset --hard HEAD
-etckeeper vcs show HEAD | fancy
-etckeeper vcs diff | fancy
+etckeeper vcs show HEAD | delta
+etckeeper vcs diff | delta
 etckeeper vcs status
 
 dotfiles ls-files

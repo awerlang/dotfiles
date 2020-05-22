@@ -11,4 +11,4 @@ Name=tmux
 Parent=FALLBACK/
 
 [Scrolling]
-ScrollFullPage=1
+ScrollFullPage=true
