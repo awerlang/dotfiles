@@ -1,4 +1,6 @@
 {
     "Alt-/": "lua:comment.comment",
-    "CtrlW": "Save,Quit"
+    "CtrlW": "Save&Quit",
+    "CtrlH": "DeleteLine",
+    "\u001b[3;5~": "DeleteWordRight"
 }
