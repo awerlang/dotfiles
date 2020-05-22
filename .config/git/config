@@ -38,7 +38,7 @@
     branch = magenta
 
 [core]
-    editor = nano
+    editor = micro
     pager = delta
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
 
