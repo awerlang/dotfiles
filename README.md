@@ -1,25 +1,9 @@
 # dotfiles
 
-## New repository
+## Setup on new computer
 
 ```bash
-git init --bare ~/.config/dotfiles
-dotfiles config status.showUntrackedFiles no
-```
-
-## New computer
-
-```bash
-git clone --bare <git-repo-url> $HOME/.config/dotfiles
-dotfiles checkout                                       # optionally, -f
-dotfiles submodule update --init --recursive 
-protect-config +i
-```
-
-## Alias
-
-```bash
-alias dotfiles='git --git-dir=$HOME/.config/dotfiles/ --work-tree=$HOME'
+dotfiles install <git-repo-url>
 ```
 
 ## Operation
@@ -33,9 +17,7 @@ editrc [index|filename]
 2. Pull from upstream
 
 ```
-protect-config -i
 dotfiles pull
-protect-config +i
 ```
 
 3. Create bash script from template
@@ -48,19 +30,20 @@ newscript filename
 
 General workflows:
 
-* `auto-update.sh`: fetches packages in background for available upgrades
-* `drive-health.sh`: health routine for file systems / drives
-* `upgrade.sh`: performs a system upgrade, checks for known issues
+* `auto-update`: fetches packages in background for available upgrades
+* `upgrade`: performs a system upgrade, checks for known issues
+* `drive-health`: health routine for file systems / drives
 
 Tools:
 
-* `boot-svg.sh`: export boot sequence to .svg/.txt
-* `zypper-download.sh`: downloads .rpm packages in parallel
-* `zypper-changelog.sh`: prints changelogs for updated packages
+* `boot-svg`: export boot sequence to .svg/.txt
+* `sp`: controls spotify playback
+* `zypper-download`: downloads .rpm packages in parallel
+* `zypper-changelog`: prints changelogs for updated packages
 
 Local-specific script:
 
-* `local-overrides.sh`: checks for each local configuration overrides
+* `local-overrides`: checks for each local configuration overrides
 
 ## References
 

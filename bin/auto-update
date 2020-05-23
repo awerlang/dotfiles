@@ -136,7 +136,7 @@ system() {
 
     zypper list-updates | grep "^v " >/dev/null || return
 
-    zypper-download.sh dup
+    zypper-download dup
 
     content "New system updates available."
     notify "New system updates available" "It's a good time to update the system ;)"

@@ -14,5 +14,5 @@ fi
 
 rpm_count=$(find "${HOME}/.cache/zypp/packages" -name "*.rpm" 2>/dev/null | wc -l)
 if (( rpm_count > 0 )); then
-    printf "${COLOR2}>>> New system updates available: %s, run upgrade.sh${NC}\n\n" "$rpm_count"
+    printf "${COLOR2}>>> New system updates available: %s, run upgrade${NC}\n\n" "$rpm_count"
 fi

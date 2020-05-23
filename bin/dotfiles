@@ -15,7 +15,7 @@
 ##
 ##      Commands:
 ##
-##          install pkg...
+##          install <git-uri>...
 ##          pull [args...]
 ##          ssh-key
 ##          (any git command)

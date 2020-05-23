@@ -5,7 +5,7 @@
 ##      zypper-download - Downloads packages using any amount of available openSUSE mirrors.
 ##
 ### SYNOPSIS
-##      Usage: zypper-download.sh [options] command [command-args]...
+##      Usage: zypper-download [options] command [command-args]...
 ##
 ##      Options:
 ##
