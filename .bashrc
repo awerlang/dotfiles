@@ -10,12 +10,14 @@ fi
 
 # bash options
 
-export PAGER="less -FRS"
-export MANPAGER="less -X"
+export PAGER="less -FRS -j3"
+export MANPAGER="less -X -j3"
 export EDITOR='micro'
 export VISUAL='micro'
 export LESSHISTFILE=-
 export NODE_REPL_HISTORY=""
+export FZF_DEFAULT_COMMAND="fd --type file --color=always"
+export FZF_DEFAULT_OPTS="--ansi"
 
 HISTCONTROL=ignoreboth:erasedups
 history -r ~/.bash_commands.sh
