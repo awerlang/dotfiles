@@ -10,7 +10,7 @@ fi
 
 # bash options
 
-export PAGER="less -FRS -j3"
+export PAGER="less -FRS"
 export MANPAGER="less -X -j3"
 export EDITOR='micro'
 export VISUAL='micro'
@@ -124,3 +124,5 @@ welcome
 # Default options for interactive mode
 
 set -o noclobber -o pipefail
+
+return

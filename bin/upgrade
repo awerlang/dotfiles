@@ -3,15 +3,15 @@
 PKG_CACHE_DIR="$HOME/.cache/zypp/packages"
 
 zypper() {
-    sudo 'zypper' --quiet --no-refresh --pkg-cache-dir "$PKG_CACHE_DIR" "$@"
+    sudo 'zypper' --no-refresh --pkg-cache-dir "$PKG_CACHE_DIR" "$@"
 }
 
 zypper-changelog "$PKG_CACHE_DIR"
-if zypper-download -z dup --details --auto-agree-with-licenses; then
+if zypper dup --details --auto-agree-with-licenses; then
     zypper-download -z inr
-    mapfile -t unneeded < <(zypper pa --unneeded | awk '$1 == "i" { print $5 }')
-    (( ${#unneeded[@]} )) && zypper rm --clean-deps --details "${unneeded[@]}"
-    zypper clean
+    mapfile -t unneeded < <(zypper --quiet pa --unneeded | awk '$1 == "i" { print $5, "-", $7 }')
+    (( ${#unneeded[@]} )) && zypper --quiet rm --clean-deps --details "${unneeded[@]}"
+    zypper --quiet clean
     (sudo rpmconfigcheck) > >(while read -r line; do echo -e "\e[01;31m$line\e[0m" >&2; done)
     local-overrides
 fi

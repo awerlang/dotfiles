@@ -21,6 +21,7 @@ temp_diff=$(mktemp)
 trap 'rm -f $temp_chg $temp_diff' EXIT
 
 pkg_sep=$(printf '=%.0s' {1..72})
+pkg_sep2="${pkg_sep:1}"
 
 declare -a new_packages rebuilds empty_changelogs
 while IFS=$'\t' read -r filename package new_version summary; do
@@ -28,7 +29,7 @@ while IFS=$'\t' read -r filename package new_version summary; do
     if rpm -q --changelog "$package" >"$temp_chg"; then
         temp_pkg_diff=$(rpm -q --changelog -p "$filename" | diff --unchanged-line-format= --old-line-format= --new-line-format='%L' "$temp_chg" -)
         if [[ -n "$temp_pkg_diff" ]]; then
-            printf '%s\n%s: %s\n%s\n\n%s\n\n' "$pkg_sep" "$package" "$summary" "$pkg_sep" "$temp_pkg_diff" >>"$temp_diff"
+            printf '%s\n%s: %s\n%s\n\n%s\n\n' "$pkg_sep" "$package" "$summary" "$pkg_sep2" "$temp_pkg_diff" >>"$temp_diff"
         else
             version=$(rpm -q --qf '%{VERSION}' "$package")
             [[ "$new_version" == "$version" ]] && rebuilds+=("$package") || empty_changelogs+=("$package")
@@ -44,7 +45,7 @@ print_array() {
     shift
 
     (( "$#" != 0 )) || return
-    printf '%s\n%s\n%s\n\n' "$pkg_sep" "$title" "$pkg_sep"
+    printf '%s\n%s\n%s\n\n' "$pkg_sep" "$title" "$pkg_sep2"
     printf '* %s\n' "$@"
     printf '\n'
 } >>"$temp_diff"
@@ -56,5 +57,5 @@ print_array "Empty changelogs" "${empty_changelogs[@]}"
 # display diff using PAGER
 
 if [[ -s "$temp_diff" ]]; then
-    ${PAGER-less} "$temp_diff"
+    ${PAGER-less} --pattern="$pkg_sep" "$temp_diff"
 fi
