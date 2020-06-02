@@ -1,0 +1,4 @@
+#!/bin/bash
+[[ -n $TERM ]] || exit
+
+exec /usr/bin/tput "$@"

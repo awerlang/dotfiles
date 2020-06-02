@@ -10,7 +10,7 @@ fi
 
 # bash options
 
-export PAGER="less -FRS"
+export PAGER="less -RS"
 export MANPAGER="less -X -j3"
 export EDITOR='micro'
 export VISUAL='micro'
