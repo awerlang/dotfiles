@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -o nounset
+
+declare exitOption=''
+
+main() {
+    exitOption='/(e)xit'
+
+    sub_volumes
+}
+
+confirm() {
+    read -r -n 1 -p "> $1 (y/N${exitOption})? "
+    echo
+    if [[ $REPLY =~ ^[Ee]$ ]]; then
+        end
+        exit
+    fi
+    [[ $REPLY =~ ^[Yy]$ ]]
+}
+
+sub_volumes() {
+    confirm "Keep unwanted content out of /home snapshots" || return
+
+    mv "$HOME"/.cache{,.old} \
+        && /usr/sbin/btrfs subvolume create "$HOME"/.cache \
+        && cp -a "$HOME"/.cache{.old/.,/} \
+        && rm -rf "$HOME"/.cache.old
+}
+
+main

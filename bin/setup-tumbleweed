@@ -1,0 +1,438 @@
+#!/bin/bash
+
+set -o nounset
+
+declare exitOption=''
+
+main() {
+    confirm "Setup openSUSE Linux on this computer" || exit 1
+
+    exitOption='/(e)xit'
+
+    sudo -v
+
+    local pre post
+    pre=$(sudo snapper create --type pre --print-number --description 'setup-tumbleweed' --cleanup-algorithm number) || exit 1
+    install
+    post=$(sudo snapper create --type post --pre-number "$pre" --print-number --description 'setup-tumbleweed' --cleanup-algorithm number)
+
+    printf '? Run this command to see which system files were changed: \n%s\n' "$ sudo snapper status $pre..$post"
+}
+
+install() {
+    etc
+
+    # install/remove packages
+
+    remove_packages
+    install_packages
+    additional_repos
+    flatpaks
+
+    # regularly updated features
+
+    auto_updates
+    groups
+    sudoers
+
+    # mostly directed for the first time setup
+
+    base_system
+    hostname
+    clock
+    resume
+    fstab
+    spotify
+
+    end
+}
+
+end() {
+    exitOption=''
+    review
+    todo_next
+}
+
+confirm() {
+    read -r -n 1 -p "> $1 (y/N${exitOption})? "
+    echo
+    if [[ $REPLY =~ ^[Ee]$ ]]; then
+        end
+        exit
+    fi
+    [[ $REPLY =~ ^[Yy]$ ]]
+}
+
+zypper() {
+    sudo 'zypper' --quiet "$@"
+}
+
+etc() {
+    # assume /etc in vcs when etckeeper is already installed
+    command -v etckeeper >/dev/null && return
+
+    confirm "Setup local git repository for /etc" || return
+
+    zypper --non-interactive install etckeeper >/dev/null || return 1
+
+    # set up a preferred editor instead of vim
+    sudo git config --global core.editor "${EDITOR:-nano}"
+
+    # this git repository at /etc is owned by the root user
+    sudo etckeeper init
+    sudo etckeeper commit -m "Initial system configuration"
+}
+
+remove_packages() {
+    confirm "Remove unused packages" || return
+
+    declare -a pkgs=(
+                    # we use our own script instead
+                    "btrfsmaintenance"
+
+                    # support for hardware we don't have
+                    "cups"
+                    "gutenprint"
+                    "skanlite"
+                    "ModemManager"
+                    "yast2-iscsi-client"
+
+                    # we use our own scripts instead
+                    "PackageKit"
+                    "PackageKit-gstreamer-plugin"
+                    "plasma5-pk-updates"
+
+                    # unwanted for fast boots
+                    "plymouth"
+
+                    # unused, or we have better alternatives
+                    "gnome-online-accounts"
+                    "kmag"
+                    "kmousetool"
+                    "kompare"
+                    "konversation"
+                    "joe"
+                    "screen"
+                    "postfix"
+                    "vorbis-tools"
+                    )
+
+    declare -a to_remove=()
+
+    local pkg
+    for pkg in "${pkgs[@]}"
+    do
+        rpm -q "$pkg" >/dev/null && confirm "Remove $pkg" && to_remove+=("$pkg")
+    done
+
+    # shellcheck disable=SC2068
+    (( ${#to_remove[@]} )) && zypper rm --clean-deps --details ${to_remove[@]} && zypper al ${to_remove[@]} >/dev/null
+}
+
+install_packages() {
+    confirm "Install additional packages" || return
+
+    declare -a pkgs=(
+                    # most useful programs
+                    "htop"
+                    "udisks2"
+                    "yakuake"
+
+                    # additional hardware management
+                    "nvme-cli"
+                    "xdpyinfo"
+                    )
+
+    declare -a to_install=()
+
+    local pkg
+    for pkg in "${pkgs[@]}"
+    do
+        rpm -q "$pkg" >/dev/null || confirm "Install $pkg" && to_install+=("$pkg")
+    done
+
+    #shellcheck disable=SC2068
+    (( ${#to_install[@]} )) && zypper install --details ${to_install[@]}
+}
+
+additional_repos() {
+    confirm "Add additional Tumbleweed repositories" || return
+
+    # packman
+    zypper lr packman-essentials &>/dev/null || (confirm "Packman - Multimedia codecs" && zypper addrepo -cfp 90 http://ftp.gwdg.de/pub/linux/misc/packman/suse/openSUSE_Tumbleweed/Essentials packman-essentials) && {
+        zypper dup --details --from packman-essentials --allow-vendor-change
+    }
+
+    # nvidia
+    if ! zypper lr NVIDIA &>/dev/null && sudo lspci | grep NVIDIA >/dev/null; then
+        zypper addrepo https://download.nvidia.com/opensuse/tumbleweed NVIDIA
+
+        printf "? Choose the appropriate version for your NVIDIA graphics card:\n"
+        zypper search x11-video-nvidiaG0* | grep "x11-[^ ]*"
+        read -r -n 1 -p "Type the last digit (4, 5...): "
+
+        zypper install --details "x11-video-nvidiaG0${REPLY}"
+    fi
+
+    # vs code
+    zypper lr code &>/dev/null || (confirm "Visual Studio Code" && {
+        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/zypp/repos.d/vscode.repo'
+
+        zypper install code
+    })
+
+    printf "? There are more repositories at https://en.opensuse.org/Additional_package_repositories\n"
+}
+
+flatpaks() {
+    confirm "Enable FlatHub as Flatpak repository" || return
+
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+}
+
+auto_updates() {
+    confirm "Enable prefetching system updates" || return
+    [[ -x "$HOME/bin/auto-update" ]] || { printf 'Error: needs dotfiles to setup auto-update\n' >&2; return; }
+
+    zypper modifyrepo --all --no-refresh
+
+    sudo SYSTEMD_EDITOR='cp /dev/stdin' systemctl edit --full --force auto-update <<EOF
+[Unit]
+Description=Checks for system updates
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+User=$USER
+Environment="PATH=$HOME/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=$HOME/bin/auto-update
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo systemctl enable auto-update
+}
+
+groups() {
+    confirm "Add current user to administrative group" || return
+
+    sudo usermod -aG wheel "$USER"
+}
+
+sudoers() {
+    confirm "Allow selected commands to run without asking the root password" || return
+
+    sudo SUDO_EDITOR=tee visudo -f "/etc/sudoers.d/50-wheel" >/dev/null <<EOF
+Defaults    editor=/usr/bin/nano:/usr/bin/vim
+
+Cmnd_Alias  ADMIN = /usr/bin/etckeeper, \\
+                    /usr/bin/journalctl, \\
+                    /usr/bin/snapper, \\
+                    /usr/bin/zypper, \\
+                    /usr/sbin/rpmconfigcheck
+
+%wheel      ALL = (root) NOPASSWD: ADMIN
+EOF
+}
+
+base_system() {
+    # set Num Lock to on before login
+    sudo tee /etc/sddm.conf.d/10-numlock.conf >/dev/null <<EOF
+[General]
+Numlock=on
+EOF
+
+    # decrease swapping activity to a minimum (requires enough RAM)
+    sudo tee /etc/sysctl.d/99-swap.conf >/dev/null <<EOF
+vm.swappiness=1
+vm.vfs_cache_pressure=50
+EOF
+
+    # enable all SysRq functions
+    sudo tee /etc/sysctl.d/99-sysrq.conf >/dev/null <<EOF
+kernel.sysrq = 1
+EOF
+
+    # TODO: remove?
+    read -r -p "> Keymap for Virtual Console (empty to skip): "
+    [[ -n "$REPLY" ]] && sudo sed -i 's/KEYMAP=br-abnt2/KEYMAP=$REPLY/' /etc/vconsole.conf
+}
+
+hostname() {
+    confirm "Change hostname - current: $(hostnamectl --static)" || return
+
+    read -r -p "> Hostname (leave empty to keep current hostname): "
+    [[ -n "$REPLY" ]] && sudo hostnamectl set-hostname "$REPLY"
+}
+
+clock() {
+    confirm "Set hardware clock to UTC" || return
+
+    # usually the BIOS clock is set to local time, we'll switch to UTC
+    sudo timedatectl set-local-rtc 0
+    sudo hwclock --systohc --utc
+}
+
+resume() {
+    confirm "Setup hibernation" && use_hibernation || confirm "Prevent hibernation/resume" && no_resume || return
+
+    # update grub menu
+    sudo grub2-mkconfig -o /boot/grub2/grub.cfg >/dev/null
+}
+
+no_resume() {
+    # remove hibernation from power options, and remove partition from kernel parameters
+
+    local file=/etc/default/grub
+
+    apply() {
+        sed 's/\bresume=[^ ]*/noresume/;s/\bsplash=[^ ]* //' $file
+    }
+
+    if ! apply | diff -u $file - | delta; then
+        confirm "Overwrite $file" || return 1
+
+        # remove resume= option from kernel parameters
+        apply | sudo tee $file >/dev/null
+    fi
+
+    # remove Hibernate option from menus
+    sudo tee /etc/polkit-1/rules.d/10-disable-hibernate.rules >/dev/null <<EOF
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.login1.hibernate" ||
+        action.id == "org.freedesktop.login1.hibernate-multiple-sessions")
+    {
+        return polkit.Result.NO;
+    }
+});
+EOF
+}
+
+use_hibernation() {
+    # this is a workaround for an issue taking place the next reboot
+    sudo SYSTEMD_EDITOR='cp /dev/stdin' systemctl edit grub2-once <<EOF
+[Service]
+ExecStartPost=
+ExecStartPost=-/usr/bin/systemctl disable --no-reload grub2-once.service
+EOF
+
+    # avoid placing this ephemeral file in version control
+    grep --quiet 'grub2-once.service' /etc/.gitignore || sudo tee -a /etc/.gitignore >/dev/null <<EOF
+systemd/system/sysinit.target.wants/grub2-once.service
+EOF
+
+    # Secure Boot is incompatible with resume from disk
+    sudo sed -i 's/SECURE_BOOT="yes"/SECURE_BOOT="no"/' /etc/sysconfig/bootloader
+}
+
+fstab() {
+    local file=/etc/fstab
+
+    # we don't need access times to be recorded
+
+    apply() {
+        sed '/btrfs/{/noatime/!{s/defaults/noatime/g;s/subvol/noatime,subvol/g}}' $file | column -t -o '  '
+    }
+
+    apply | diff -u $file - | delta
+
+    confirm "Overwrite $file" && apply | sudo tee $file >/dev/null
+}
+
+spotify() {
+    confirm "Configure Spotify" || return
+
+    spotifyd_bin
+    spotify_connect
+    spotify_service
+}
+
+spotifyd_bin() {
+    confirm "Download and place the spotifyd binary in path" || return
+
+    local outdir
+    outdir=$(mktemp -d)
+    pushd "$outdir" >/dev/null || return
+    wget --quiet https://github.com/Spotifyd/spotifyd/releases/download/v0.2.24/spotifyd-linux-full.tar.gz \
+        && sha512sum --check --status - <<<'bae35cd544f7d89457209a30532b053160214063b951e02c22cf121c03af1fdf5847dff245650c9a23df9d4113c9fea0d101af3c41ae23ba3c3fa35aaa4b291c  spotifyd-linux-full.tar.gz' \
+        && tar -xf spotifyd-linux-full.tar.gz \
+        && sudo cp spotifyd /usr/local/bin
+    rm spotifyd-linux-full.tar.gz
+    rm spotifyd
+    popd >/dev/null || return
+    rmdir "$outdir"
+}
+
+spotify_connect() {
+    confirm "Enable Spotify Connect" || return
+
+    sudo tee /etc/firewalld/services/spotify.xml >/dev/null <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>Spotify</short>
+  <description>Spotify Connect</description>
+  <port protocol="udp" port="5353"/>
+  <port protocol="tcp" port="57621"/>
+</service>
+EOF
+
+    sudo systemctl restart firewalld
+    sudo firewall-cmd --quiet --zone=home --add-service=spotify
+    sudo firewall-cmd --quiet --permanent --zone=home --add-service=spotify
+}
+
+spotify_service() {
+    confirm "Run spotifyd as an user service" || return
+    [[ -x "$HOME/bin/spotifyd" ]] || { printf 'Error: needs dotfiles to setup spotifyd\n' >&2; return; }
+
+    SYSTEMD_EDITOR='cp /dev/stdin' systemctl edit --user --full --force spotifyd <<EOF
+[Unit]
+Description=A spotify playing daemon
+Documentation=https://github.com/Spotifyd/spotifyd
+Wants=sound.target
+After=sound.target
+
+[Service]
+Type=exec
+ExecStart=$HOME/bin/spotifyd
+Restart=always
+RestartSec=12
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=default.target
+EOF
+
+    systemctl --user enable --now spotifyd
+}
+
+review() {
+    command -v etckeeper >/dev/null || return
+
+    sudo etckeeper vcs add -A -N
+    if ! sudo etckeeper vcs diff --exit-code; then
+        confirm "Commit changes" && sudo etckeeper commit || confirm "Revert changes then" && sudo etckeeper vcs reset --hard HEAD >/dev/null
+    fi
+
+    # rebuild initramfs, in order to pick up changes in configuration and packages
+    sudo mkinitrd >/dev/null
+}
+
+todo_next() {
+    printf "? To do next:\n"
+    printf "  * Configure monitors\n"
+    printf "  * Configure networks\n"
+    printf "  * Configure power management\n"
+    printf "  * Configure browsers\n"
+    printf "  * Configure backup\n"
+    printf "\n"
+    printf "Bye!\n"
+}
+
+main
