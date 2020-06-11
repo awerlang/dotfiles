@@ -59,6 +59,7 @@ smartctl -a /dev/sda        # storage: health
 smartctl --scan             # storage: health
 nvme error-log              # storage: health
 
+grep '\[.*\]' /sys/block/*/queue/scheduler  # storage: I/O scheduler
 sudo lsblk --output=NAME,FSTYPE,LABEL,PARTLABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINT,SIZE,OWNER,GROUP,MODE,SCHED,STATE,TRAN   # storage: partitions
 btrfs filesystem usage /    # storage: fs
 btrfs device stats /        # storage: fs
@@ -72,6 +73,8 @@ du -hx -d 1 . | sort -hs    # storage: directory size
 awk '$2~/\/([^.]|$)/ { print $2 }' /etc/fstab | xargs sudo du -xhd4 -t 50M | sort -sk2 # storage: larger directories
 sudo find `awk '$3~/btrfs/ && $2~/\/([^.]|$)/ { print $2 }' /etc/fstab` -xdev -type d -print0 | xargs -0 -s 32768 sudo lsattr -d 2>/dev/null | awk '$1~/C/ {print $NF}' | sort -u # storage: nodatacow directories
 
+strace -f --trace=%file -o trace.out    # system: trace file system calls
+awk '/Name/{name=$2} /VmSwap/{print $2 $3, name}' /proc/*/status | column -t | sort -n -r | less    # system: processes by swap usage
 free --human    # system: free memory
 uname -a        # system: label
 inxi -Fxxxz     # system: properties
@@ -80,7 +83,7 @@ xrandr --current            # system: displays
 xrandr --listactivemonitors # system: displays
 sensors         # system: sensors
 sync            # system: disk cache
-ps afux | less -S # system: processes
+ps afux | less -S   # system: processes
 ps -U root -u root fu | less -S # processes list user tree
 ps -eo user= | sort | uniq --count | sort --reverse --numeric-sort # system: processes
 pidof $PROCESS  # system: processes
