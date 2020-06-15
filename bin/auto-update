@@ -21,18 +21,14 @@ exec 3>&1
 main() {
     refresh
     vscode
-    local major skip_system updates
+    local major updates
     major=$(kernel)
-    skip_system=$(nvidia "$major")
-    updates=$(system "$skip_system")
+    nvidia "$major"
+    updates=$(system)
     hotfixes
 
     if [[ -n "$updates" ]]; then
         summary "It's a good time to update the system."
-    fi
-
-    if [[ -n "$major" ]] && [[ -n "$skip_system" ]]; then
-        exit 1
     fi
 }
 
@@ -118,21 +114,20 @@ nvidia() {
     task "Checking NVIDIA"
 
     local major=$1
-    [[ -z "$major" ]] && return
 
     if ! zypper list-updates --repo NVIDIA | grep "^v " >/dev/null; then
-        result "Waiting for NVIDIA release after major Linux Kernel"
+        if [[ -n "$major" ]]; then
+            content "Locking kernel update."
+            sudo zypper addlock 'kernel-*' >/dev/null
+        fi
+    else
+        content "Unlocking kernel update."
+        sudo zypper removelock 'kernel-*' >/dev/null
     fi
 }
 
 system() {
     task "Checking System"
-
-    local skip=$1
-    if [[ -n "$skip" ]]; then
-        content "Skipping System: ${skip}."
-        return
-    fi
 
     zypper list-updates | grep "^v " >/dev/null || return
 
