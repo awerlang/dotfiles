@@ -28,6 +28,7 @@ for option in autocd dotglob extglob; do
 done
 
 complete -o default -o nospace -F _git dotfiles
+complete -o default -o nospace -F _zypper zypper-download
 
 # git repository status for bash prompt
 
@@ -42,6 +43,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
+alias la='ls -Fhlva --color=auto'
 alias ll='ls -Fhlv --color=auto'
 alias mkdir='mkdir -vp'
 alias cp='cp -vn'

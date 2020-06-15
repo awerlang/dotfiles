@@ -3,5 +3,5 @@
 # simple file server over HTTP
 
 port=${1:-8000}
-sleep 1 && firefox localhost:"$port" &
+sleep 2 && nohup setsid --fork firefox localhost:"$port" &>/dev/null
 python3 -m http.server "$port"

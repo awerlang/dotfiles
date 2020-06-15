@@ -174,7 +174,7 @@ create_download_spec() {
             pkg=0;
             next;
         }
-        / packages? (is|are) going to be (installed|upgraded|downgraded):$/ {
+        / packages? (is|are) going to (be installed|be upgraded|be downgraded|change architecture):$/ {
             pkg=1;
             next;
         }
