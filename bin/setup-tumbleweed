@@ -107,6 +107,7 @@ remove_packages() {
 
                     # unused, or we have better alternatives
                     "gnome-online-accounts"
+                    "kdeconnect-kde"
                     "kmag"
                     "kmousetool"
                     "kompare"

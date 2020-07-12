@@ -65,7 +65,7 @@ alias dep='zypper search --requires-pkg --provides-pkg --recommends-pkg --supple
 alias clip='xclip -selection clipboard'
 alias newpasswd='read -r -n 16 pass < <(LC_ALL=C tr -dc "[:graph:]" < /dev/urandom) && echo $pass'
 alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public key copied to clipboard."'
-alias json='cat "$1" | python -m json.tool'
+alias json='python -m json.tool <'
 alias up='TERM=xterm up'
 alias decolorize=$'sed \'s/\x1b\[[0-9;]*m//g\''
 alias shlint='ls bin/* | entr -s "shellcheck --external-sources --color=always --exclude=SC2016 bin/*"'
@@ -95,6 +95,10 @@ diff() {
 
 highlight() {
     grep --color=always --extended-regexp -e "^" -e "$*" | less -R
+}
+
+timeit() {
+    "$@" 2>&1 | awk '{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0 }'
 }
 
 mkd() {

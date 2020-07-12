@@ -27,6 +27,7 @@ zypper search                   # packages
 zypper search --details         # packages
 zypper search --requires --recommends --supplements --suggests                  # packages: dependencies
 zypper search --requires-pkg --recommends-pkg --supplements-pkg --suggests-pkg  # packages: provides
+sudo fgrep '|install|' /var/log/zypp/history | awk -F'|' '{print $3}' | sort | uniq --count | sort --human-numeric-sort --reverse | less    # packages: upgrade count
 
 etckeeper commit -m ''
 etckeeper vcs diff $(etckeeper vcs rev-list --max-parents=0 HEAD) | delta
@@ -71,7 +72,7 @@ filefrag                    # storage: fs
 filefrag -v                 # storage: fs
 du -hx -d 1 . | sort -hs    # storage: directory size
 awk '$2~/\/([^.]|$)/ { print $2 }' /etc/fstab | xargs sudo du -xhd4 -t 50M | sort -sk2 # storage: larger directories
-sudo find `awk '$3~/btrfs/ && $2~/\/([^.]|$)/ { print $2 }' /etc/fstab` -xdev -type d -print0 | xargs -0 -s 32768 sudo lsattr -d 2>/dev/null | awk '$1~/C/ {print $NF}' | sort -u # storage: nodatacow directories
+sudo find $(awk '$3~/btrfs/ && $2~/\/([^.]|$)/ { print $2 }' /etc/fstab) -xdev -type d -print0 | xargs -0 -s 32768 sudo lsattr -d 2>/dev/null | awk '$1~/C/ {print $NF}' | sort -u # storage: nodatacow directories
 
 strace -f --trace=%file -o trace.out    # system: trace file system calls
 awk '/Name/{name=$2} /VmSwap/{print $2 $3, name}' /proc/*/status | column -t | sort -n -r | less    # system: processes by swap usage
@@ -86,7 +87,7 @@ sync            # system: disk cache
 ps afux | less -S   # system: processes
 ps -U root -u root fu | less -S # processes list user tree
 ps -eo user= | sort | uniq --count | sort --reverse --numeric-sort # system: processes
-pidof $PROCESS  # system: processes
+pidof PROCESS   # system: processes
 
 sudo lspci -tv  # system: pci
 sudo lsinitrd   # system: initramfs, initrd
@@ -103,8 +104,8 @@ lsof -i tcp # internet network
 lsof -i :22 # internet port network
 lsof -p $$ # files process
 
-read -r var     # io: read into variable
-read <"/path"   # io: read from file
+read -r var         # io: read into variable
+read -r <"/path"    # io: read from file
 socat
 ss -ralnp -f inet
 watch -n 1 -- "ss -o state established '( dport = :http or sport = :http )'"
