@@ -7,8 +7,8 @@ zypper() {
 }
 
 zypper-changelog "$PKG_CACHE_DIR"
-if zypper dup --details --auto-agree-with-licenses; then
-    zypper-download -z inr
+if zypper dup --no-allow-arch-change --details --auto-agree-with-licenses; then
+    zypper-download -z inr --no-allow-arch-change
     mapfile -t unneeded < <(zypper --quiet pa --unneeded | awk '$1 == "i" { print $5, "-", $7 }')
     (( ${#unneeded[@]} )) && zypper --quiet rm --clean-deps --details "${unneeded[@]}"
     zypper --quiet clean
