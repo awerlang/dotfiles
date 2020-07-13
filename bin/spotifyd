@@ -8,6 +8,7 @@ exec bwrap --ro-bind /usr /usr \
            --ro-bind /bin /bin \
            --ro-bind /lib /lib \
            --ro-bind /lib64 /lib64 \
+           --ro-bind /opt /opt \
            --ro-bind /etc/alsa /etc/alsa \
            --ro-bind /etc/resolv.conf /etc/resolv.conf \
            --ro-bind /var/lib/ca-certificates /var/lib/ca-certificates \
@@ -21,7 +22,7 @@ exec bwrap --ro-bind /usr /usr \
            --unshare-all \
            --share-net \
            --die-with-parent \
-           /usr/local/bin/spotifyd --no-daemon \
-                                   --backend pulseaudio \
-                                   --zeroconf-port 57621 \
-                                   --volume-normalisation
+           /opt/bin/spotifyd --no-daemon \
+                             --backend pulseaudio \
+                             --zeroconf-port 57621 \
+                             --volume-normalisation

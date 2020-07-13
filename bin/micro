@@ -6,4 +6,4 @@ exec bwrap --ro-bind / / \
            --dev /dev \
            --unshare-all \
            --die-with-parent \
-           -- /usr/local/bin/micro "$@"
+           -- /opt/bin/micro "$@"

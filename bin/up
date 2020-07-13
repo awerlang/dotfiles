@@ -4,10 +4,11 @@ set -euo pipefail
 exec bwrap --ro-bind /usr /usr \
            --ro-bind /bin /bin \
            --ro-bind /lib64 /lib64 \
+           --ro-bind /opt /opt \
            --ro-bind /etc/alternatives /etc/alternatives \
            --dev /dev \
            --tmpfs /tmp \
            --chdir /tmp \
            --unshare-all \
            --die-with-parent \
-           -- /usr/local/bin/up
+           -- /opt/bin/up

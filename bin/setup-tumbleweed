@@ -360,7 +360,7 @@ spotifyd_bin() {
     wget --quiet https://github.com/Spotifyd/spotifyd/releases/download/v0.2.24/spotifyd-linux-full.tar.gz \
         && sha512sum --check --status - <<<'bae35cd544f7d89457209a30532b053160214063b951e02c22cf121c03af1fdf5847dff245650c9a23df9d4113c9fea0d101af3c41ae23ba3c3fa35aaa4b291c  spotifyd-linux-full.tar.gz' \
         && tar -xf spotifyd-linux-full.tar.gz \
-        && sudo cp spotifyd /usr/local/bin
+        && sudo install -D -s -T spotifyd /opt/bin/spotifyd
     rm spotifyd-linux-full.tar.gz
     rm spotifyd
     popd >/dev/null || return
