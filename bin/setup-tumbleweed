@@ -94,6 +94,7 @@ remove_packages() {
                     "cups"
                     "gutenprint"
                     "skanlite"
+                    "suse-prime"
                     "ModemManager"
                     "yast2-iscsi-client"
 
@@ -136,6 +137,7 @@ install_packages() {
     declare -a pkgs=(
                     # most useful programs
                     "htop"
+                    "rpmconf"
                     "udisks2"
                     "yakuake"
 
@@ -233,6 +235,7 @@ Cmnd_Alias  ADMIN = /usr/bin/etckeeper, \\
                     /usr/bin/journalctl, \\
                     /usr/bin/snapper, \\
                     /usr/bin/zypper, \\
+                    /usr/sbin/rpmconf, \\
                     /usr/sbin/rpmconfigcheck
 
 %wheel      ALL = (root) NOPASSWD: ADMIN
