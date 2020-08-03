@@ -31,4 +31,8 @@ test -z "$PROFILEREAD" && . /etc/profile || true
 #    echo
 #fi
 
+NEW_PATHS="$HOME/src/dockerfiles/bin"
+if [[ ! :$PATH: == *:"$NEW_PATHS":* ]] ; then
+    export PATH="$NEW_PATHS:$PATH"
+fi
 export QT_LOGGING_RULES='*=false'

@@ -11,10 +11,17 @@
 
 set -o nounset -o noclobber -o pipefail
 
-COLOR1=$(tput setaf 3)
-COLOR2=$(tput setaf 4)
-COLOR3=$(tput setaf 2)
-NC=$(tput sgr0)
+if [[ -n TERM ]]; then
+    COLOR1=$(tput setaf 3)
+    COLOR2=$(tput setaf 4)
+    COLOR3=$(tput setaf 2)
+    NC=$(tput sgr0)
+else
+    COLOR1=
+    COLOR2=
+    COLOR3=
+    NC=
+fi
 
 exec 3>&1
 

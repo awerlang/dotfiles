@@ -20,13 +20,28 @@ confirm() {
     [[ $REPLY =~ ^[Yy]$ ]]
 }
 
+btrfs() {
+    /usr/sbin/btrfs "$@"
+}
+
 sub_volumes() {
     confirm "Keep unwanted content out of /home snapshots" || return
 
-    mv "$HOME"/.cache{,.old} \
-        && /usr/sbin/btrfs subvolume create "$HOME"/.cache \
-        && cp -a "$HOME"/.cache{.old/.,/} \
-        && rm -rf "$HOME"/.cache.old
+    move_subvolume "${HOME}/.cache"
+    move_subvolume "${HOME}/.var"
+}
+
+move_subvolume() {
+    local directory=$1
+    mkdir -p "$directory" || exit
+    sudo btrfs subvolume show "$directory" &>/dev/null && exit
+
+    confirm "Create subvolume for ${directory}?" || return
+
+    mv "$directory"{,.old} \
+        && btrfs subvolume create "$directory" \
+        && cp -a "${directory}"{.old/.,/} \
+        && rm -rf "${directory}".old
 }
 
 main
