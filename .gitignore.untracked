@@ -1,8 +1,6 @@
 .bash_history
 .cache
 .config/Code
-.config/bash-git-prompt
-.config/diff-so-fancy
 .config/dotfiles
 .config/gtk*
 .config/k*
