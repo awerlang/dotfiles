@@ -6,6 +6,8 @@ _editrc_files() {
     dotfiles ls-files | nl -w2 -n'rz' -s' '
 }
 
+cd $HOME
+
 if (( $# > 0 )); then
     file=$1
 else

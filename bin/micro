@@ -3,6 +3,7 @@ set -euo pipefail
 
 exec bwrap --ro-bind / / \
            --bind "$HOME" "$HOME" \
+           --bind "/tmp" "/tmp" \
            --dev /dev \
            --unshare-all \
            --die-with-parent \
