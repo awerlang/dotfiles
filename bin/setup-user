@@ -34,7 +34,7 @@ sub_volumes() {
 move_subvolume() {
     local directory=$1
     mkdir -p "$directory" || exit
-    sudo btrfs subvolume show "$directory" &>/dev/null && exit
+    sudo 'btrfs' subvolume show "$directory" &>/dev/null && exit
 
     confirm "Create subvolume for ${directory}?" || return
 
