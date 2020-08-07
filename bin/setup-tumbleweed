@@ -137,6 +137,7 @@ install_packages() {
     declare -a pkgs=(
                     # most useful programs
                     "htop"
+                    "mtr"
                     "rpmconf"
                     "udisks2"
                     "yakuake"

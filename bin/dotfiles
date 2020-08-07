@@ -21,7 +21,7 @@
 ##          (any git command)
 ##
 ### CONFIGURATION
-##      DOTFILES_DIR        = ${HOME}/.config/dotfiles
+##      DOTFILES_DIR        = ${HOME}/.config/dotfiles.git
 ##
 ### LICENSE
 ##      dotfiles v0.1
@@ -76,7 +76,6 @@ install() {
 
     # the next step will overwrite local files
     dotfiles checkout -f
-    dotfiles submodule update --init --recursive
 
     install_deps
     ssh_key

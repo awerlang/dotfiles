@@ -29,12 +29,15 @@ sub_volumes() {
 
     move_subvolume "${HOME}/.cache"
     move_subvolume "${HOME}/.var"
+    move_subvolume "${HOME}/.config/Code"
+    move_subvolume "${HOME}/.vscode"
+    move_subvolume "${HOME}/.local/share/baloo"
 }
 
 move_subvolume() {
     local directory=$1
-    mkdir -p "$directory" || exit
-    sudo 'btrfs' subvolume show "$directory" &>/dev/null && exit
+    mkdir -p "$directory" || return
+    sudo 'btrfs' subvolume show "$directory" &>/dev/null && return
 
     confirm "Create subvolume for ${directory}?" || return
 

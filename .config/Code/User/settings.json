@@ -10,5 +10,10 @@
     "window.menuBarVisibility": "toggle",
     "editor.multiCursorModifier": "ctrlCmd",
     "explorer.confirmDragAndDrop": false,
-    "explorer.confirmDelete": false
+    "explorer.confirmDelete": false,
+    "timeline.excludeSources": [],
+    "editor.cursorBlinking": "phase",
+    "files.trimFinalNewlines": true,
+    "editor.formatOnPaste": true,
+    "terminal.integrated.shell.linux": "/bin/bash"
 }
