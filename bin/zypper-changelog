@@ -3,6 +3,9 @@
 # Original work: https://github.com/bubbleguuum/zypperdiff
 
 # compare changelogs between downloaded rpm packages and installed packages
+# usage: zypper-changelog [/path/to/zypper-package-cache]
+
+set -o nounset -o noclobber -o pipefail
 
 PKG_CACHE_DIR="${1-.}"
 packages=$(find "$PKG_CACHE_DIR" -name '*.rpm' -exec rpm -q --qf '{}\t%{NAME}\t%{SOURCERPM}\t%{VERSION}\t%{SUMMARY}\n' -p '{}' \; \

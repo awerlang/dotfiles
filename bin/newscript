@@ -2,6 +2,15 @@
 
 set -o nounset -o noclobber -o pipefail
 
+fail() {
+    echo "$1" | grep --color=always . >&2 
+    exit 1
+}
+
+if [[ -z ${1:-} ]]; then
+    fail "usage: newscript programname"
+fi
+
 program="$1"
 file="${HOME}/bin/${program}"
 sed "s/%program-name%/${program}/g" "${HOME}/bin/template.sh" >"${file}"

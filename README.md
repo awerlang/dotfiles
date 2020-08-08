@@ -3,21 +3,22 @@
 ## Setup on new computer
 
 ```bash
-dotfiles install <git-repo-url>
+git clone <git-repo-url>
+./dotfiles/bin/dotfiles install <git-repo-url>
 ```
 
 ## Operation
 
-1. Edit a dotfile
-
-```
-editrc [index|filename]
-```
-
-2. Pull from upstream
+1. Pull from upstream
 
 ```
 dotfiles pull
+```
+
+2. Edit a dotfile
+
+```
+editrc [index|filename]
 ```
 
 3. Create bash script from template
@@ -28,18 +29,25 @@ newscript filename
 
 ## System maintenance
 
-General workflows:
+General maintenance:
 
 * `auto-update`: fetches packages in background for available upgrades
 * `upgrade`: performs a system upgrade, checks for known issues
 * `drive-health`: health routine for file systems / drives
 
-Tools:
+System utilities:
 
 * `boot-svg`: export boot sequence to .svg/.txt
-* `sp`: controls spotify playback
 * `zypper-download`: downloads .rpm packages in parallel
 * `zypper-changelog`: prints changelogs for updated packages
+
+Tools:
+
+* `delta`: a viewer for git and diff output
+* `notes`: write a note
+* `serve`: serve HTTP content out of a directory
+* `sp`: controls spotify playback
+* `up`:  tool for writing Linux pipes with instant live preview 
 
 Local-specific script:
 
