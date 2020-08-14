@@ -247,6 +247,8 @@ EOF
 
 base_system() {
     # set Num Lock to on before login
+    sudo sed -i 's/KBD_NUMLOCK="bios"/KBD_NUMLOCK="yes"/' /etc/sysconfig/keyboard
+
     sudo tee /etc/sddm.conf.d/10-numlock.conf >/dev/null <<EOF
 [General]
 Numlock=on
