@@ -1,11 +1,33 @@
 # dotfiles
 
+## Overview
+
+The provided `dotfiles` program manages the usual *dotfiles*.
+
+* Bare git repository for dotfiles, no symlinks are needed
+* Installs required dependencies
+
+### Linux workstation
+
+The provided `setup-tumbleweed` and `setup-user` are highly interactive programs to get up and running a new openSUSE Tumbleweed box.
+
+* Places /etc into separate, local version control (`etckeeper`)
+* Performs optimizations for SSD, swap
+* Setups hibernation, clock, hostname
+* Adds/removes packages
+* Configures automatic download of updates
+* Other conveniences
+
 ## Setup on new computer
 
 ```bash
 git clone <git-repo-url>
+./dotfiles/bin/setup-tumbleweed
+./dotfiles/bin/setup-user
 ./dotfiles/bin/dotfiles install <git-repo-url>
 ```
+
+At this point the programs are available in $PATH.
 
 ## Operation
 
