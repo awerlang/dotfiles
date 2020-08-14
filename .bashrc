@@ -83,6 +83,7 @@ alias rpmconfigcheck='sudo rpmconfigcheck'
 alias snapper='sudo snapper'
 alias zypper='sudo zypper'
 alias visudo='sudo visudo'
+alias backup='sudo bin/backup'
 
 alias filefrag='/usr/sbin/filefrag'
 
