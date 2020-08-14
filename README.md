@@ -34,6 +34,7 @@ General maintenance:
 * `auto-update`: fetches packages in background for available upgrades
 * `upgrade`: performs a system upgrade, checks for known issues
 * `drive-health`: health routine for file systems / drives
+* `backup`: makes a backup from a btrfs subvolume to external drive
 
 System utilities:
 

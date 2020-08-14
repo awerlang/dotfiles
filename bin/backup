@@ -1,0 +1,230 @@
+#!/bin/bash
+#####################################################################################################
+##
+### NAME
+##      backup - Backups a specified btrfs subvolume to another btrfs partition
+##
+### SYNOPSIS
+##      Usage: backup [options] command [command-args]...
+##
+##      Options:
+##
+##          -l <label>      Label of the target partition. Default: $LABEL
+##          -s <subvolume>  Source subvolume. Default: $SOURCE
+##          -c              Display default configuration.
+##          -h              Display this message and exit.
+##          -v              Display version information and exit.
+##
+##      Commands:
+##
+##          mount
+##          unmount
+##          run
+##
+### CONFIGURATION
+##      LABEL               = Data
+##      MOUNT_POINT         = /run/media/${LABEL}
+##      SOURCE              = /home
+##
+### LICENSE
+##      backup v0.1
+##
+##      Copyright (C) 2020 André Werlang
+##
+##      License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+##      This is free software: you are free to change and redistribute it.
+##      There is NO WARRANTY, to the extent permitted by law.
+##
+#####################################################################################################
+
+#set -x
+set -o nounset -o errexit -o pipefail
+
+if [[ $EUID -ne 0 ]]; then
+    echo "Must be superuser to run backups"
+    exit 1
+fi
+
+run() {
+    readonly TARGET=$(mount_point)
+    readonly TARGET_BACKUPS="$TARGET"/.backups
+    readonly SOURCE_BACKUPS="$SOURCE"/.backups
+
+    case "${SUB_COMMAND[0]}" in
+    (mount)     do_mount;   exit 0;;
+    (unmount)   do_unmount; exit 0;;
+    (run)       do_run;     exit 0;;
+    (*)         usage;      exit 1;;
+    esac
+}
+
+parse_opts() {
+    local OPTIND OPTARG flag
+    while getopts hvcl:s: flag
+    do
+        case "$flag" in
+        (h) help; exit 0;;
+        (v) version; exit 0;;
+        (c) configuration | about; exit 0;;
+        (l) readonly LABEL="$OPTARG";;
+        (s) readonly SOURCE="$OPTARG";;
+        (*) usage; exit 1;;
+        esac
+    done
+    shift $((OPTIND-1))
+
+    if [ $# -eq 0 ]; then
+        error "expected required argument -- command"
+        usage;
+        exit 1;
+    fi
+
+    readonly SUB_COMMAND=("$@")
+}
+
+mount_point() {
+    echo "$MOUNT_POINT" | subst_vars
+}
+
+do_mount() {
+    if [[ ! -d "$TARGET" ]]; then
+        mkdir -p "$TARGET"
+        mount LABEL="${LABEL}" -o noatime "$TARGET"
+    fi
+    if [[ ! -d "$TARGET_BACKUPS" ]]; then
+        btrfs subvolume create "$TARGET_BACKUPS"
+        sync
+    fi
+}
+
+do_unmount() {
+    sync
+
+    if [[ -d "$TARGET" ]]; then
+        umount "$TARGET"
+        rmdir "$TARGET"
+    fi
+}
+
+do_run() {
+    do_mount
+
+    if [[ ! -d "$SOURCE_BACKUPS"/current ]]; then
+        echo "Performing first backup"
+
+        mkdir "$SOURCE_BACKUPS"
+        btrfs subvolume snapshot -r "$SOURCE" "$SOURCE_BACKUPS"/current
+        sync
+
+        mkdir "${TARGET_BACKUPS}${SOURCE}"
+        btrfs send "$SOURCE_BACKUPS"/current | btrfs receive "${TARGET_BACKUPS}${SOURCE}"
+    else
+        echo "Performing incremental backup"
+
+        btrfs subvolume snapshot -r "$SOURCE" "$SOURCE_BACKUPS"/latest
+        sync
+        btrfs send -p "$SOURCE_BACKUPS"/current "$SOURCE_BACKUPS"/latest | btrfs receive "${TARGET_BACKUPS}${SOURCE}"
+
+        btrfs subvolume delete --commit-after "$SOURCE_BACKUPS"/current
+        mv "$SOURCE_BACKUPS"/latest "$SOURCE_BACKUPS"/current
+        btrfs subvolume delete --commit-after "${TARGET_BACKUPS}${SOURCE}"/current
+        mv "$TARGET_BACKUPS"/home/latest "${TARGET_BACKUPS}${SOURCE}"/current
+    fi
+}
+
+# -- boilerplate code below  -- #
+
+exec 3>&1
+
+main() {
+    parse_opts "$@"
+    set_default_config
+
+    run
+}
+
+read_default_config() {
+    configuration | awk '/[[:alnum:]_ *= *.*]/{ print "[[ -v " $1 " ]] || readonly " $1 $2 "\x27" $3 "\x27" }'
+}
+
+set_default_config() {
+    local vars
+    vars=$(read_default_config)
+    eval "$vars"
+}
+
+subst_vars() {
+    export LABEL TARGET SOURCE
+    envsubst '$LABEL $TARGET $SOURCE'
+}
+
+about() {
+    set_default_config
+    subst_vars
+}
+
+usage() {
+    sed '/^### SYNOPSIS$/,/^###/!d;//d;s/^## \{0,6\}//' "$0" | about
+}
+
+version() {
+    sed '/^### LICENSE$/,/^###/!d;//d;s/^## \{0,6\}//' "$0" | about
+}
+
+help() {
+    sed '/^##$/,/^####/!d;//d;s/^##.\{0,2\}//' "$0" | about
+}
+
+configuration() {
+    sed '/^### CONFIGURATION$/,/^###/!d;//d;s/^## \{0,6\}//' "$0"
+}
+
+notify() {
+    [[ $(command -v notify-send) ]] || return
+
+    local summary=$1
+    local body=$2
+    notify-send -a "backup" -t 5000 "$summary" "$body"
+}
+
+result() {
+    printf "%s\n" "$1"
+}
+
+error() {
+    printf "%s\n" "$1"
+} >&2
+
+log() {
+    #shellcheck disable=SC2059
+    printf "$@"
+} >&3
+
+quiet() {
+    exec 3>/dev/null
+}
+
+COLOR1=$(tput setaf 3)
+COLOR2=$(tput setaf 4)
+COLOR3=$(tput setaf 2)
+NC=$(tput sgr0)
+
+task() {
+    log "${COLOR1}> %s${NC}\n" "${1}"
+}
+
+content() {
+    log "${COLOR2}  > %s${NC}\n" "${1}"
+}
+
+summary() {
+    log "${COLOR3}> %s${NC}\n" "${1}"
+}
+
+logpath() {
+    local target=$HOME/.local/share/My/backup
+    mkdir -p "$target"
+    result "${target}/$(date -I)"
+}
+
+main "$@"

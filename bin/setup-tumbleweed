@@ -38,6 +38,7 @@ install() {
     # mostly directed for the first time setup
 
     base_system
+    snapper_timeline
     hostname
     clock
     resume
@@ -138,6 +139,7 @@ install_packages() {
                     # most useful programs
                     "htop"
                     "mtr"
+                    "pv"
                     "rpmconf"
                     "udisks2"
                     "yakuake"
@@ -264,6 +266,13 @@ EOF
     # TODO: remove?
     read -r -p "> Keymap for Virtual Console (empty to skip): "
     [[ -n "$REPLY" ]] && sudo sed -i 's/KEYMAP=br-abnt2/KEYMAP=$REPLY/' /etc/vconsole.conf
+}
+
+snapper_timeline() {
+    confirm "Create hourly snapshots for /home" || return
+
+    sudo snapper -c home create-config -t default /home
+    sudo systemctl enable snapper-timeline.timer
 }
 
 hostname() {
