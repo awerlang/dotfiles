@@ -34,7 +34,7 @@
 ##
 #####################################################################################################
 
-set -o nounset -o noclobber -o pipefail
+set -o nounset -o noclobber -o pipefail -o errexit
 
 run() {
     (( "$#" != 0 )) || fail 'Error: usage: dotfiles command [...args]'
@@ -96,6 +96,7 @@ install_deps() {
                                 meld \
                                 nodejs12 \
                                 powerline \
+                                python3-pip \
                                 ripgrep \
                                 ShellCheck \
                                 tmux \

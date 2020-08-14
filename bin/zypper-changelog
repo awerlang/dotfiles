@@ -28,7 +28,7 @@ pkg_sep=$(printf '=%.0s' {1..72})
 declare -a new_packages rebuilds empty_changelogs
 while IFS=$'\t' read -r filename package new_version summary; do
     package="${package#'~'}"
-    if rpm -q --changelog "$package" >"$temp_chg"; then
+    if rpm -q --changelog "$package" >|"$temp_chg"; then
         temp_pkg_diff=$(rpm -q --changelog -p "$filename" | diff --unchanged-line-format= --old-line-format= --new-line-format='%L' "$temp_chg" -)
         if [[ -n "$temp_pkg_diff" ]]; then
             printf 'Δ %s: %s\n%s\n\n%s\n\n' "$package" "$summary" "$pkg_sep" "$temp_pkg_diff" >>"$temp_diff"
