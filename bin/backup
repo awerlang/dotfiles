@@ -109,27 +109,26 @@ do_unmount() {
 do_run() {
     do_mount
 
-    if [[ ! -d "$SOURCE_BACKUPS"/current ]]; then
-        echo "Performing first backup"
+    local timestamp=$(date +%Y-%m-%d-%H-%M-%S)
 
-        mkdir "$SOURCE_BACKUPS"
-        btrfs subvolume snapshot -r "$SOURCE" "$SOURCE_BACKUPS"/current
-        sync
+    mkdir -p "${SOURCE_BACKUPS}"
+    btrfs subvolume snapshot -r "${SOURCE}" "${SOURCE_BACKUPS}"/"${timestamp}"
+    sync
 
-        mkdir "${TARGET_BACKUPS}${SOURCE}"
-        btrfs send "$SOURCE_BACKUPS"/current | btrfs receive "${TARGET_BACKUPS}${SOURCE}"
-    else
+    local previous
+    local parent_arg=""
+    local target="${TARGET_BACKUPS}${SOURCE}"
+    mkdir -p "${target}"
+    local config_path="${target}"/config
+    if [[ -f "${config_path}" ]] && read -r previous <"${config_path}"; then
         echo "Performing incremental backup"
-
-        btrfs subvolume snapshot -r "$SOURCE" "$SOURCE_BACKUPS"/latest
-        sync
-        btrfs send -p "$SOURCE_BACKUPS"/current "$SOURCE_BACKUPS"/latest | btrfs receive "${TARGET_BACKUPS}${SOURCE}"
-
-        btrfs subvolume delete --commit-after "$SOURCE_BACKUPS"/current
-        mv "$SOURCE_BACKUPS"/latest "$SOURCE_BACKUPS"/current
-        btrfs subvolume delete --commit-after "${TARGET_BACKUPS}${SOURCE}"/current
-        mv "$TARGET_BACKUPS"/home/latest "${TARGET_BACKUPS}${SOURCE}"/current
+        parent_arg="-p ${SOURCE_BACKUPS}/${previous}"
+    else
+        echo "Performing first backup"
     fi
+
+    btrfs send ${parent_arg} "${SOURCE_BACKUPS}"/"${timestamp}" | pv -petbar | btrfs receive "${target}"
+    echo "${timestamp}" >"${config_path}"
 }
 
 # -- boilerplate code below  -- #
