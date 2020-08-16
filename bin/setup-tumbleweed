@@ -246,13 +246,8 @@ EOF
 }
 
 base_system() {
-    # set Num Lock to on before login
+    # turn on NumLock
     sudo sed -i 's/KBD_NUMLOCK="bios"/KBD_NUMLOCK="yes"/' /etc/sysconfig/keyboard
-
-    sudo tee /etc/sddm.conf.d/10-numlock.conf >/dev/null <<EOF
-[General]
-Numlock=on
-EOF
 
     # decrease swapping activity to a minimum (requires enough RAM)
     sudo tee /etc/sysctl.d/99-swap.conf >/dev/null <<EOF
