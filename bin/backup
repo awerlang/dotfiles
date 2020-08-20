@@ -117,18 +117,18 @@ do_run() {
     sync
 
     local previous
-    local parent_arg=""
+    local -a parent_arg=()
     local target="${TARGET_BACKUPS}${SOURCE}"
     mkdir -p "${target}"
     local config_path="${target}"/config
     if [[ -f "${config_path}" ]] && read -r previous <"${config_path}"; then
         echo "Performing incremental backup"
-        parent_arg="-p ${SOURCE_BACKUPS}/${previous}"
+        parent_arg+=("-p" "${SOURCE_BACKUPS}/${previous}")
     else
         echo "Performing first backup"
     fi
 
-    btrfs send "${parent_arg}" "${SOURCE_BACKUPS}"/"${timestamp}" | pv -petbar | btrfs receive "${target}"
+    btrfs send "${parent_arg[@]}" "${SOURCE_BACKUPS}"/"${timestamp}" | pv -petbar | btrfs receive "${target}"
     echo "${timestamp}" >"${config_path}"
 }
 
