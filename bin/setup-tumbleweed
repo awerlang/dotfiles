@@ -109,6 +109,7 @@ remove_packages() {
 
                     # unused, or we have better alternatives
                     "gnome-online-accounts"
+                    "kaccounts-integration"
                     "kdeconnect-kde"
                     "kmag"
                     "kmousetool"
@@ -130,6 +131,8 @@ remove_packages() {
 
     # shellcheck disable=SC2068
     (( ${#to_remove[@]} )) && zypper rm --clean-deps --details ${to_remove[@]} && zypper al ${to_remove[@]} >/dev/null
+
+    confirm "Remove *-lang packages" && zypper rm --clean-deps --details '*-lang' && zypper addlock '*-lang' >/dev/null
 }
 
 install_packages() {
