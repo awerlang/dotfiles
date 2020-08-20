@@ -8,3 +8,6 @@
 
 # Log files
 *.log
+
+# Local repositories
+makefile

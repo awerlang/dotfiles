@@ -109,7 +109,8 @@ do_unmount() {
 do_run() {
     do_mount
 
-    local timestamp=$(date +%Y-%m-%d-%H-%M-%S)
+    local timestamp
+    timestamp=$(date +%Y-%m-%d-%H-%M-%S)
 
     mkdir -p "${SOURCE_BACKUPS}"
     btrfs subvolume snapshot -r "${SOURCE}" "${SOURCE_BACKUPS}"/"${timestamp}"
@@ -127,7 +128,7 @@ do_run() {
         echo "Performing first backup"
     fi
 
-    btrfs send ${parent_arg} "${SOURCE_BACKUPS}"/"${timestamp}" | pv -petbar | btrfs receive "${target}"
+    btrfs send "${parent_arg}" "${SOURCE_BACKUPS}"/"${timestamp}" | pv -petbar | btrfs receive "${target}"
     echo "${timestamp}" >"${config_path}"
 }
 
