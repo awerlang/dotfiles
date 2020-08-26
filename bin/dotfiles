@@ -87,6 +87,7 @@ install_deps() {
     sudo zypper --quiet install aria2 \
                                 bat \
                                 bubblewrap \
+                                buildah \
                                 entr \
                                 fd \
                                 fzf \
@@ -95,6 +96,7 @@ install_deps() {
                                 libxml2-tools \
                                 meld \
                                 nodejs12 \
+                                podman \
                                 powerline \
                                 python3-pip \
                                 ripgrep \

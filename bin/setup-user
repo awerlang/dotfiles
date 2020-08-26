@@ -8,13 +8,13 @@ main() {
     exitOption='/(e)xit'
 
     sub_volumes
+    podman_rootless
 }
 
 confirm() {
     read -r -n 1 -p "> $1 (y/N${exitOption})? "
     echo
     if [[ $REPLY =~ ^[Ee]$ ]]; then
-        end
         exit
     fi
     [[ $REPLY =~ ^[Yy]$ ]]
@@ -32,6 +32,7 @@ sub_volumes() {
     move_subvolume "${HOME}/.config/Code"
     move_subvolume "${HOME}/.vscode"
     move_subvolume "${HOME}/.local/share/baloo"
+    move_subvolume "${HOME}/.local/share/containers"
 }
 
 move_subvolume() {
@@ -45,6 +46,13 @@ move_subvolume() {
         && btrfs subvolume create "$directory" \
         && cp -a "${directory}"{.old/.,/} \
         && rm -rf "${directory}".old
+}
+
+podman_rootless() {
+    confirm "Configure podman rootless?" || return
+
+    sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $(whoami)
+    podman system migrate
 }
 
 main
