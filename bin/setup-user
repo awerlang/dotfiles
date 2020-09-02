@@ -51,7 +51,7 @@ move_subvolume() {
 podman_rootless() {
     confirm "Configure podman rootless?" || return
 
-    sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $(whoami)
+    sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 "$(whoami)"
     podman system migrate
 }
 
