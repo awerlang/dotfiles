@@ -7,6 +7,12 @@ zypper() {
 }
 
 zypper-changelog "$PKG_CACHE_DIR"
+
+if which etckeeper >/dev/null && sudo etckeeper unclean; then
+    echo "There are uncommited changes in /etc, please review."
+    exit
+fi
+
 if zypper dup --no-allow-arch-change --details --auto-agree-with-licenses; then
     zypper-download -z inr --no-allow-arch-change
     mapfile -t unneeded < <(zypper --quiet pa --unneeded | awk '$1 == "i" { print $5, "-", $7 }')
