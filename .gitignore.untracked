@@ -1,7 +1,7 @@
 .bash_history
 .cache
 .config/Code
-.config/dotfiles
+.config/dotfiles.git
 .config/gtk*
 .config/k*
 .config/pulse
