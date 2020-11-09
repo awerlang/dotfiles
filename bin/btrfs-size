@@ -1,0 +1,21 @@
+#!/bin/bash
+
+getsize() {
+    local subv size
+    while read -r subv
+    do
+        subv=${subv:-/}
+        size=$(sudo btrfs subvolume show "$subv" | grep 'Usage referenced' | awk '{print $NF}')
+        echo "$size" "$subv"
+    done < <(getsubvolumes)
+}
+
+getsubvolumes() {
+    sudo btrfs subvolume list -tq / | tail -n +3 | awk '$4 == "-" {print $NF}' | sed 's/@//'
+}
+
+columnate() {
+    column --table -N Size,Path -R Size
+}
+
+getsize | columnate
