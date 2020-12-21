@@ -1,0 +1,16 @@
+#!/bin/bash
+
+command="$1"
+vpn="work"
+
+case $1 in
+    up)
+        sudo systemctl start "openvpn@$vpn"
+        ;;
+    down)
+        sudo systemctl stop "openvpn@$vpn"
+        ;;
+    *)
+        resolvectl status tun0
+        ;;
+esac
