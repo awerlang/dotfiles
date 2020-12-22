@@ -61,6 +61,7 @@ General maintenance:
 System utilities:
 
 * `boot-svg`: export boot sequence to .svg/.txt
+* `btrfs-size`: prints storage space for each subvolume
 * `zypper-download`: downloads .rpm packages in parallel
 * `zypper-changelog`: prints changelogs for updated packages
 
@@ -70,7 +71,8 @@ Tools:
 * `notes`: write a note
 * `serve`: serve HTTP content out of a directory
 * `sp`: controls spotify playback
-* `up`:  tool for writing Linux pipes with instant live preview 
+* `up`: tool for writing Linux pipes with instant live preview 
+* `vpn`: checks and connects to a VPN 
 
 Local-specific script:
 
