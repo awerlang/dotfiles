@@ -1,14 +1,22 @@
 #!/bin/bash
 
 command="$1"
-vpn="work"
+vpn=${2-work}
 
-case $1 in
+case $command in
     up)
         sudo systemctl start "openvpn@$vpn"
+        while ! ip link show tun0 &> /dev/null; do sleep 1; done
+        resolvectl status tun0
         ;;
     down)
         sudo systemctl stop "openvpn@$vpn"
+        while ip link show tun0 &> /dev/null; do sleep 1; done
+        ;;
+    --help)
+        echo "vpn               Query VPN status"
+        echo "vpn up [work]     Activate VPN"
+        echo "vpn down [work]   Deactivate VPN"
         ;;
     *)
         resolvectl status tun0
