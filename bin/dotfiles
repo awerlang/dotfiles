@@ -95,7 +95,7 @@ install_deps() {
                                 libnotify-tools \
                                 libxml2-tools \
                                 meld \
-                                nodejs12 \
+                                nodejs14 \
                                 podman \
                                 powerline \
                                 python3-pip \
