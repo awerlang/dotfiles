@@ -367,11 +367,14 @@ spotify() {
 spotifyd_bin() {
     confirm "Download and place the spotifyd binary in path" || return
 
+    local version=0.3.0
+    local sha512='bb69fbeedc4565a272416fc5b078e93eb0675a9c425672140538f50240ee557ea8df08ff3ecf5ff7c5640d560124b04ff61a825583550e6ac94e8f0437c079ad  spotifyd-linux-full.tar.gz'
+
     local outdir
     outdir=$(mktemp -d)
     pushd "$outdir" >/dev/null || return
-    wget --quiet https://github.com/Spotifyd/spotifyd/releases/download/v0.2.24/spotifyd-linux-full.tar.gz \
-        && sha512sum --check --status - <<<'bae35cd544f7d89457209a30532b053160214063b951e02c22cf121c03af1fdf5847dff245650c9a23df9d4113c9fea0d101af3c41ae23ba3c3fa35aaa4b291c  spotifyd-linux-full.tar.gz' \
+    wget --quiet https://github.com/Spotifyd/spotifyd/releases/download/v$version/spotifyd-linux-full.tar.gz \
+        && sha512sum --check --status - <<<"$sha512" \
         && tar -xf spotifyd-linux-full.tar.gz \
         && sudo 'install' -D -s -T spotifyd /opt/bin/spotifyd
     rm spotifyd-linux-full.tar.gz
