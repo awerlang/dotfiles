@@ -108,6 +108,7 @@ remove_packages() {
                     "plymouth"
 
                     # unused, or we have better alternatives
+                    "gdb"
                     "gnome-online-accounts"
                     "kaccounts-integration"
                     "kdeconnect-kde"
