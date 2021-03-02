@@ -27,7 +27,7 @@ for option in autocd dotglob extglob; do
     shopt -s $option &>/dev/null
 done
 
-complete -o default -o nospace -F _git dotfiles
+__git_complete dotfiles __git_main
 complete -o default -o nospace -F _zypper zypper-download
 
 # git repository status for bash prompt
@@ -88,7 +88,7 @@ alias backup='sudo ~/bin/backup'
 alias filefrag='/usr/sbin/filefrag'
 
 alias g='git'
-complete -o default -o nospace -F _git g
+__git_complete g __git_main
 
 diff() {
     command diff -u "$1" "$2" | delta
