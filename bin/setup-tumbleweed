@@ -151,6 +151,9 @@ install_packages() {
                     # additional hardware management
                     "nvme-cli"
                     "xdpyinfo"
+
+                    # fonts
+                    "terminus-bitmap-fonts"
                     )
 
     declare -a to_install=()
@@ -263,6 +266,8 @@ EOF
     sudo tee /etc/sysctl.d/99-sysrq.conf >/dev/null <<EOF
 kernel.sysrq = 1
 EOF
+
+    sudo sed -i 's/FONT=.*/FONT=ter-116b.psfu/' /etc/vconsole.conf
 
     # TODO: remove?
     read -r -p "> Keymap for Virtual Console (empty to skip): "
