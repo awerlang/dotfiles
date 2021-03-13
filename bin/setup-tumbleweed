@@ -121,6 +121,7 @@ remove_packages() {
                     "screen"
                     "postfix"
                     "vorbis-tools"
+                    "wicked"
                     )
 
     declare -a to_remove=()
@@ -144,6 +145,7 @@ install_packages() {
                     # most useful programs
                     "htop"
                     "mtr"
+                    "ncdu"
                     "pv"
                     "rpmconf"
                     "udisks2"

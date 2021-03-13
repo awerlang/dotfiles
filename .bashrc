@@ -77,7 +77,7 @@ alias wanip6='dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short'
 
 alias btrfs='sudo btrfs'
 alias etckeeper='sudo etckeeper'
-alias etcdiff='etckeeper vcs diff | delta'
+alias etcdiff='etckeeper vcs diff | delta --navigate'
 alias rpmconf='sudo rpmconf'
 alias rpmconfigcheck='sudo rpmconfigcheck'
 alias snapper='sudo snapper'

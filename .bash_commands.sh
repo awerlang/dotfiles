@@ -37,8 +37,8 @@ etckeeper vcs log sudoers
 etckeeper vcs checkout -- 
 etckeeper vcs reset HEAD^
 etckeeper vcs reset --hard HEAD
-etckeeper vcs show HEAD | delta
-etckeeper vcs diff | delta
+etckeeper vcs show HEAD | delta --navigate
+etckeeper vcs diff | delta --navigate
 etckeeper vcs status
 
 dotfiles ls-files
