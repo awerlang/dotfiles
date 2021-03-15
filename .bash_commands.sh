@@ -29,6 +29,9 @@ zypper search --requires --recommends --supplements --suggests                  
 zypper search --requires-pkg --recommends-pkg --supplements-pkg --suggests-pkg  # packages: provides
 sudo fgrep '|install|' /var/log/zypp/history | awk -F'|' '{print $3}' | sort | uniq --count | sort --human-numeric-sort --reverse | less    # packages: upgrade count
 
+flatpak override --user --no-filesystem=home 
+flatpak info --show-permissions 
+
 etckeeper commit -m ''
 etckeeper vcs diff $(etckeeper vcs rev-list --max-parents=0 HEAD) | delta
 etckeeper vcs log
