@@ -118,6 +118,7 @@ remove_packages() {
                     "konversation"
                     "joe"
                     "samba"
+                    "samba-client"
                     "screen"
                     "postfix"
                     "vorbis-tools"
