@@ -22,6 +22,8 @@ systemd-analyze                 # startup
 systemd-analyze critical-chain  # startup
 systemd-analyze blame           # startup
 
+rpm -q -qf FILE                 # which package provides file
+rpm -q -ql PACKAGE              # list files installed by package
 zypper se -i --details | awk '$1 == "i+" && $3 !~ /^(patterns-|openSUSE-|shim|kernel-default|numactl|NetworkManager|mokutil|irqbalance|grub2-|glibc|firewalld|biosdevname)/ && $5 == "package"' | sort -k11    # packages: installed
 zypper search                   # packages
 zypper search --details         # packages
@@ -32,10 +34,11 @@ sudo fgrep '|install|' /var/log/zypp/history | awk -F'|' '{print $3}' | sort | u
 flatpak override --user --no-filesystem=home 
 flatpak info --show-permissions 
 
-etckeeper commit -m ''
+etckeeper commit
 etckeeper vcs diff $(etckeeper vcs rev-list --max-parents=0 HEAD) | delta
 etckeeper vcs log
 etckeeper vcs log --oneline
+etckeeper vcs log --name-status --format="%H"
 etckeeper vcs log sudoers
 etckeeper vcs checkout -- 
 etckeeper vcs reset HEAD^
