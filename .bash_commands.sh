@@ -24,6 +24,7 @@ systemd-analyze blame           # startup
 
 rpm -q -qf FILE                 # which package provides file
 rpm -q -ql PACKAGE              # list files installed by package
+rpm -qa                         # all packages
 zypper se -i --details | awk '$1 == "i+" && $3 !~ /^(patterns-|openSUSE-|shim|kernel-default|numactl|NetworkManager|mokutil|irqbalance|grub2-|glibc|firewalld|biosdevname)/ && $5 == "package"' | sort -k11    # packages: installed
 zypper search                   # packages
 zypper search --details         # packages
