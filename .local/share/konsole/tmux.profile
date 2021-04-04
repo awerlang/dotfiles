@@ -11,4 +11,5 @@ Name=tmux
 Parent=FALLBACK/
 
 [Scrolling]
+HistorySize=10000
 ScrollFullPage=true
