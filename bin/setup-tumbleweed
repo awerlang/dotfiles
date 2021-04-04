@@ -145,6 +145,7 @@ install_packages() {
 
     declare -a pkgs=(
                     # most useful programs
+                    "git-delta"
                     "htop"
                     "mtr"
                     "ncdu"
