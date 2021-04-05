@@ -91,6 +91,7 @@ install_deps() {
                                 entr \
                                 fd \
                                 fzf \
+                                git-delta \
                                 jq \
                                 libnotify-tools \
                                 libxml2-tools \
