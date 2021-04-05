@@ -90,6 +90,7 @@ install_deps() {
                                 buildah \
                                 entr \
                                 fd \
+                                fira-code-fonts \
                                 fzf \
                                 git-delta \
                                 jq \

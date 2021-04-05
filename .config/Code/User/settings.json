@@ -1,19 +1,26 @@
 {
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true
+    },
+    "editor.cursorBlinking": "phase",
+    "editor.fontFamily": "'Fira Code', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
+    "editor.fontLigatures": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.minimap.enabled": false,
+    "editor.multiCursorModifier": "ctrlCmd",
+    "explorer.confirmDelete": false,
+    "explorer.confirmDragAndDrop": false,
+    "files.trimFinalNewlines": true,
+    "git.enableSmartCommit": true,
     "telemetry.enableCrashReporter": false,
     "telemetry.enableTelemetry": false,
+    "terminal.integrated.shell.linux": "/bin/bash",
+    "timeline.excludeSources": [],
     "update.mode": "none",
+    "window.menuBarVisibility": "toggle",
     "window.zoomLevel": 0,
     "workbench.enableExperiments": false,
-    "extensions.showRecommendationsOnlyOnDemand": true,
-    "workbench.settings.enableNaturalLanguageSearch": false,
-    "editor.minimap.enabled": false,
-    "window.menuBarVisibility": "toggle",
-    "editor.multiCursorModifier": "ctrlCmd",
-    "explorer.confirmDragAndDrop": false,
-    "explorer.confirmDelete": false,
-    "timeline.excludeSources": [],
-    "editor.cursorBlinking": "phase",
-    "files.trimFinalNewlines": true,
-    "editor.formatOnPaste": true,
-    "terminal.integrated.shell.linux": "/bin/bash"
+    "workbench.settings.enableNaturalLanguageSearch": false
 }
