@@ -141,7 +141,7 @@
 
     # files
     churn = !git --no-pager log --all --find-renames --find-copies --name-only --format='format:' "$@" | grep -v '^$' | sort | uniq -c | sort -nr | head
-    untracked = !git ls-files -z --others --exclude-from=.gitignore.untracked | xargs --null ls -ltd | cat | head -n 30
+    untracked = !git ls-files -z --others --exclude-from=.gitignore.untracked | xargs --null ls -ltd 2>/dev/null | head -n 30
 
     # log
     l   = log --topo-order --pretty=format:'%C(yellow)%h %C(cyan)%cn %C(blue)%cr%C(reset) %s'

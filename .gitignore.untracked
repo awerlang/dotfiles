@@ -1,6 +1,7 @@
 .bash_history
 .cache
 .config/Code
+.config/chromium
 .config/dotfiles.git
 .config/gtk*
 .config/k*
@@ -13,6 +14,8 @@
 .npm
 .var
 .vscode
+.zoom
 Documents
 Downloads
+src
 *.local
