@@ -88,6 +88,7 @@ install_deps() {
                                 bat \
                                 bubblewrap \
                                 buildah \
+                                crun \
                                 entr \
                                 fd \
                                 fira-code-fonts \
