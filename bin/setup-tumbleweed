@@ -145,6 +145,7 @@ install_packages() {
 
     declare -a pkgs=(
                     # most useful programs
+                    "flatpak"
                     "htop"
                     "mtr"
                     "ncdu"
@@ -204,9 +205,30 @@ additional_repos() {
 }
 
 flatpaks() {
-    confirm "Enable FlatHub as Flatpak repository" || return
+    confirm "Install Flatpak apps" || return
 
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    declare -a pkgs=(
+                    "com.getpostman.Postman"
+                    "com.slack.Slack"
+                    "com.valvesoftware.Steam"
+                    "org.telegram.desktop"
+                    "us.zoom.Zoom"
+                    )
+
+    declare -a to_install=()
+
+    local pkg
+    for pkg in "${pkgs[@]}"
+    do
+        if ! flatpak info "$pkg" &>/dev/null; then
+            confirm "Install $pkg" && to_install+=("$pkg")
+        fi
+    done
+
+    #shellcheck disable=SC2068
+    (( ${#to_install[@]} )) \
+        && sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo \
+        && flatpak install --app flathub ${to_install[@]}
 }
 
 auto_updates() {
