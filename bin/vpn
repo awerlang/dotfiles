@@ -5,12 +5,12 @@ vpn=${2-work}
 
 case $command in
     up)
-        sudo systemctl start "openvpn@$vpn"
+        sudo systemctl start "openvpn@$vpn.service"
         while ! ip link show tun0 &> /dev/null; do sleep 1; done
         resolvectl status tun0
         ;;
     down)
-        sudo systemctl stop "openvpn@$vpn"
+        sudo systemctl stop "openvpn@$vpn.service"
         while ip link show tun0 &> /dev/null; do sleep 1; done
         ;;
     --help)

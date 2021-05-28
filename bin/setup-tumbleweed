@@ -271,6 +271,8 @@ Defaults    editor=/usr/bin/nano:/usr/bin/vim
 Cmnd_Alias  ADMIN = /usr/bin/etckeeper, \\
                     /usr/bin/journalctl, \\
                     /usr/bin/snapper, \\
+                    /usr/bin/systemctl start openvpn@work.service, \\
+                    /usr/bin/systemctl stop openvpn@work.service, \\
                     /usr/bin/zypper, \\
                     /usr/sbin/rpmconf, \\
                     /usr/sbin/rpmconfigcheck
