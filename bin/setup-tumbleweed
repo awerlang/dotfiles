@@ -285,7 +285,7 @@ base_system() {
 
     # decrease swapping activity to a minimum (requires enough RAM)
     sudo tee /etc/sysctl.d/99-swap.conf >/dev/null <<EOF
-vm.swappiness=1
+vm.swappiness=33
 vm.vfs_cache_pressure=50
 EOF
 
