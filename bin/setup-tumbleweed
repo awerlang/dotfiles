@@ -209,6 +209,7 @@ flatpaks() {
 
     declare -a pkgs=(
                     "com.getpostman.Postman"
+                    "com.github.tchx84.Flatseal"
                     "com.slack.Slack"
                     "com.valvesoftware.Steam"
                     "org.telegram.desktop"
