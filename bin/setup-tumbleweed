@@ -92,7 +92,7 @@ remove_packages() {
                     "btrfsmaintenance"
 
                     # support for hardware we don't have
-                    "cups"
+                    "cups-client"
                     "gutenprint"
                     "skanlite"
                     "suse-prime"
@@ -123,6 +123,7 @@ remove_packages() {
                     "screen"
                     "postfix"
                     "vorbis-tools"
+                    "vlc"
                     "wicked"
                     )
 
@@ -151,6 +152,7 @@ install_packages() {
                     "ncdu"
                     "pv"
                     "rpmconf"
+                    "smplayer"
                     "udisks2"
                     "yakuake"
 
