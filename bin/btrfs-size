@@ -1,17 +1,17 @@
 #!/bin/bash
 
 getsize() {
-    local subv size
-    while read -r subv
+    local uuid subv size
+    while read -r uuid subv
     do
         subv=${subv:-/}
-        size=$(sudo btrfs subvolume show "$subv" | grep 'Usage referenced' | awk '{print $NF}')
-        echo "$size" "$subv"
+        size=$(sudo btrfs subvolume show -u "$uuid" "/" | grep 'Usage referenced' | awk '{print $NF}')
+        echo "${size:--}" "$subv"
     done < <(getsubvolumes)
 }
 
 getsubvolumes() {
-    sudo btrfs subvolume list -tq / | tail -n +3 | awk '$4 == "-" {print $NF}' | sed 's/@//'
+    sudo btrfs subvolume list -qu -t / | tail -n +3 | awk '$4 == "-" {print $5 " " $NF}' | sed 's/@//'
 }
 
 columnate() {
