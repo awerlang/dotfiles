@@ -88,28 +88,29 @@ remove_packages() {
     confirm "Remove unused packages" || return
 
     declare -a pkgs=(
-                    # we use our own script instead
-                    "btrfsmaintenance"
-
                     # support for hardware we don't have
                     "cups-client"
                     "gutenprint"
+                    "libusbmuxd-*"
+                    "libvdpau_nouveau"
+                    "Mesa-dri-nouveau"
+                    "ModemManager"
                     "skanlite"
                     "suse-prime"
-                    "ModemManager"
+                    "udev-configure-printer"
                     "yast2-iscsi-client"
 
                     # we use our own scripts instead
+                    "btrfsmaintenance"
                     "PackageKit"
                     "PackageKit-gstreamer-plugin"
                     "plasma5-pk-updates"
 
-                    # unwanted for fast boots
-                    "plymouth"
-
                     # unused, or we have better alternatives
                     "gdb"
                     "gnome-online-accounts"
+                    "gvfs-backend-afc"
+                    "gvfs-backend-samba"
                     "joe"
                     "kaccounts-integration"
                     "kdeconnect-kde"
@@ -117,10 +118,14 @@ remove_packages() {
                     "kmousetool"
                     "kompare"
                     "konversation"
+                    "libproxy1-config-kde"
                     "lightdm"
                     "samba"
                     "samba-client"
                     "screen"
+                    "plasma5-desktop-emojier"
+                    "plasma5-session-wayland"
+                    "plymouth"
                     "postfix"
                     "vorbis-tools"
                     "vlc"
@@ -146,6 +151,7 @@ install_packages() {
 
     declare -a pkgs=(
                     # most useful programs
+                    "compsize"
                     "flatpak"
                     "htop"
                     "mtr"
