@@ -369,18 +369,6 @@ EOF
 }
 
 use_hibernation() {
-    # this is a workaround for an issue taking place the next reboot
-    sudo SYSTEMD_EDITOR='cp /dev/stdin' systemctl edit grub2-once <<EOF
-[Service]
-ExecStartPost=
-ExecStartPost=-/usr/bin/systemctl disable --no-reload grub2-once.service
-EOF
-
-    # avoid placing this ephemeral file in version control
-    grep --quiet 'grub2-once.service' /etc/.gitignore || sudo tee -a /etc/.gitignore >/dev/null <<EOF
-systemd/system/sysinit.target.wants/grub2-once.service
-EOF
-
     # Secure Boot is incompatible with resume from disk
     sudo sed -i 's/SECURE_BOOT="yes"/SECURE_BOOT="no"/' /etc/sysconfig/bootloader
 }
