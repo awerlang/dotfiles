@@ -11,7 +11,7 @@ getsize() {
 }
 
 getsubvolumes() {
-    sudo btrfs subvolume list -qu -t / | tail -n +3 | awk '$4 == "-" {print $5 " " $NF}' | sed 's/@//'
+    sudo btrfs subvolume list -qu -t / | tail -n +3 | awk '$4 == "-" {print $5, $NF}' | sed 's/@//'
 }
 
 columnate() {
