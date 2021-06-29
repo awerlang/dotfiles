@@ -33,6 +33,7 @@ main() {
     nvidia "$major"
     updates=$(system)
     hotfixes
+    flatpaks
 
     if [[ -n "$updates" ]]; then
         summary "It's a good time to update the system."
@@ -165,6 +166,10 @@ hotfixes() {
     pkgtree_str=$(printf '%s\n' "${pkgtree[@]}")
     content "$pkgtree_str"
     notify "Found hot-fixes" "Packages: \n$pkgtree_str"
+}
+
+flatpaks() {
+    flatpak update --no-deploy
 }
 
 main
