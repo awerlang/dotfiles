@@ -169,7 +169,7 @@ hotfixes() {
 }
 
 flatpaks() {
-    flatpak update --no-deploy
+    flatpak update --noninteractive --no-deploy >/dev/null
 }
 
 main
