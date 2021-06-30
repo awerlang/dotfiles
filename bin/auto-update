@@ -169,6 +169,8 @@ hotfixes() {
 }
 
 flatpaks() {
+    task "Checking Flatpaks"
+
     flatpak update --noninteractive --no-deploy >/dev/null
 }
 
