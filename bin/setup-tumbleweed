@@ -91,13 +91,13 @@ remove_packages() {
                     # support for hardware we don't have
                     "cups-client"
                     "gutenprint"
-                    "libusbmuxd-*"
                     "libvdpau_nouveau"
                     "Mesa-dri-nouveau"
                     "ModemManager"
                     "skanlite"
                     "suse-prime"
                     "udev-configure-printer"
+                    "usbmuxd"
                     "yast2-iscsi-client"
 
                     # we use our own scripts instead

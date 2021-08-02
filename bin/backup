@@ -122,7 +122,7 @@ do_run() {
     mkdir -p "${target}"
     local config_path="${target}"/config
     if [[ -f "${config_path}" ]] && read -r previous <"${config_path}"; then
-        echo "Performing incremental backup"
+        echo "Performing incremental backup, found ${previous}"
         parent_arg+=("-p" "${SOURCE_BACKUPS}/${previous}")
     else
         echo "Performing first backup"

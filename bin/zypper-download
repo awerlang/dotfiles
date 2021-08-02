@@ -183,7 +183,9 @@ create_download_spec() {
             version=$NF;    getline;
             arch=$1;        getline;
             repo=trim($0);  getline;
-            print uri[repo] "/" arch "/" name "-" version "." arch ".rpm";
+            host=uri[repo];
+            suffix=index(host, "//download.opensuse.org") != 0 ? ".meta4" : "";
+            print host "/" arch "/" name "-" version "." arch ".rpm" suffix;
             print "  dir=" PKG_CACHE_DIR "/" alias[repo] "/" arch;
         }
         ' -
