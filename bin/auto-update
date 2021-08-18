@@ -26,6 +26,7 @@ fi
 exec 3>&1
 
 main() {
+    flatpaks
     refresh
     vscode
     local major updates
@@ -33,7 +34,8 @@ main() {
     nvidia "$major"
     updates=$(system)
     hotfixes
-    flatpaks
+
+    wait
 
     if [[ -n "$updates" ]]; then
         summary "It's a good time to update the system."
@@ -171,7 +173,7 @@ hotfixes() {
 flatpaks() {
     task "Checking Flatpaks"
 
-    flatpak update --noninteractive --no-deploy >/dev/null
+    flatpak update --noninteractive --no-deploy >/dev/null &
 }
 
 main

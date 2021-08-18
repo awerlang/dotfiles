@@ -72,6 +72,8 @@ alias shlint='ls bin/* | entr -s "shellcheck --external-sources --color=always -
 alias browse='fzf --preview "bat --style=numbers --color=always {}"'
 alias wanip4='dig @resolver1.opendns.com -4 myip.opendns.com A +short'
 alias wanip6='dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short'
+alias ipv6_on='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=0'
+alias ipv6_off='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1'
 
 # sudo
 
