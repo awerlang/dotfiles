@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -o errexit -o nounset -o noclobber -o pipefail
+
+tmp=$(mktemp test-XXXX.wav)
+arecord -vv -f dat "$tmp" || true
+echo
+aplay "$tmp"
+rm "$tmp"

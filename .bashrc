@@ -74,6 +74,7 @@ alias wanip4='dig @resolver1.opendns.com -4 myip.opendns.com A +short'
 alias wanip6='dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short'
 alias ipv6_on='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=0'
 alias ipv6_off='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1'
+alias lsint='watch -d -n 5 cat /proc/interrupts'
 
 # sudo
 
