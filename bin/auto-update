@@ -11,7 +11,7 @@
 
 set -o nounset -o noclobber -o pipefail
 
-if [[ -n $TERM ]]; then
+if [[ -n $TERM ]] && [[ $TERM != "dumb" ]]; then
     COLOR1=$(tput setaf 3)
     COLOR2=$(tput setaf 4)
     COLOR3=$(tput setaf 2)
