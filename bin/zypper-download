@@ -40,6 +40,7 @@
 
 set -o errexit -o nounset -o noclobber -o pipefail
 shopt -s nullglob
+export LC_ALL=C
 
 main() {
     parse_opts "$@"
