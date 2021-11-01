@@ -53,6 +53,7 @@ alias path='printf "%s\n" "$PATH" | tr -s ":" "\n"'
 alias where='find . -name'
 alias count='sort | uniq -c | sort -hr'
 alias watch='watch --color --differences'
+alias uniqall='awk "!_[\$0]++"'
 
 # zypper
 
@@ -107,6 +108,12 @@ timeit() {
 
 mkd() {
     [[ $1 ]] && mkdir "$1" && cd "$1"
+}
+
+duh() {
+    local path="$1"
+    local pattern="$2"
+    du $(find "$path" -name "$pattern") | awk '{total += $1} END {print total "K"}'
 }
 
 edit() {
