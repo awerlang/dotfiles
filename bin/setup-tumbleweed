@@ -120,6 +120,7 @@ remove_packages() {
                     "konversation"
                     "libproxy1-config-kde"
                     "lightdm"
+                    "openconnect"
                     "samba"
                     "samba-client"
                     "screen"
