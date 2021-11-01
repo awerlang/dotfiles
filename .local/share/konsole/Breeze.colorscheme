@@ -89,8 +89,8 @@ Color=101,101,101
 Color=255,255,255
 
 [General]
-Blur=false
+Blur=true
 ColorRandomization=false
 Description=Breeze
-Opacity=0.96
+Opacity=0.5
 Wallpaper=
