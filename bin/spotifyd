@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-SPOTIFYD_CLIENT_ID=$(source .config/spotify/clientrc; echo $SP_CLIENT_ID)
+# shellcheck source=./.config/spotify/clientrc
+SPOTIFYD_CLIENT_ID=$(source .config/spotify/clientrc; echo "$SP_CLIENT_ID")
 export SPOTIFYD_CLIENT_ID
 
 exec bwrap --ro-bind /usr /usr \

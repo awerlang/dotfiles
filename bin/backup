@@ -46,7 +46,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 run() {
-    readonly TARGET=$(mount_point)
+    TARGET=$(mount_point)
+    readonly TARGET
     readonly TARGET_BACKUPS="$TARGET"/.backups
     readonly SOURCE_BACKUPS="$SOURCE"/.backups
 

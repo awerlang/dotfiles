@@ -54,7 +54,7 @@ SP_PATH="/org/mpris/MediaPlayer2"
 SP_MEMB="org.mpris.MediaPlayer2.Player"
 
 # generate these from https://developer.spotify.com/dashboard/applications
-# shellcheck source=.config/spotify/clientrc
+# shellcheck source=./.config/spotify/clientrc
 source "$HOME"/.config/spotify/clientrc
 
 # SHELL OPTIONS

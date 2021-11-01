@@ -1,2 +1,3 @@
 #!/bin/bash
+#shellcheck disable=SC2046
 sudo zypper info $(sudo zypper se -f -i $(sudo zypper locks | grep "^[0-9]" | cut -d "|" -f 2) | grep "^il" | cut -d "|" -f 2) | grep "^Name\|^Status" | sed -n -e "N;s/.*:\([^\n]*\)\n[^:]*/\1/;p"
