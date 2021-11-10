@@ -55,11 +55,12 @@ alias count='sort | uniq -c | sort -hr'
 alias watch='watch --color --differences'
 alias uniqall='awk "!_[\$0]++"'
 
-# zypper
+# rpm/zypper
 
 alias provider='zypper search --provides --match-substrings'
 alias pkg='zypper info --requires --provides --recommends --supplements --suggests'
 alias dep='zypper search --requires-pkg --provides-pkg --recommends-pkg --supplements-pkg --suggests-pkg'
+alias rpmkeys='rpm -q gpg-pubkey --qf "%{name}-%{version}-%{release} --> %{summary}\n"'
 
 # tools
 
