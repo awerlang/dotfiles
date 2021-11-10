@@ -7,13 +7,16 @@
 
 set -o nounset -o noclobber -o pipefail
 
+COLOR1=$(tput setaf 3)
+COLOR2=$(tput setaf 4)
+
 PKG_CACHE_DIR="${1-.}"
-packages=$(find "$PKG_CACHE_DIR" -name '*.rpm' -exec rpm -q --qf '{}\t%{NAME}\t%{SOURCERPM}\t%{VERSION}\t%{SUMMARY}\n' -p '{}' \; \
-                | awk -F $'\t' 'BEGIN { OFS = FS } $2~/^lib/ { print $1, "~" $2, $3, $4, $5; next; } { print $0 }' \
-                | LC_ALL=C sort -t $'\t' -k2,2 \
-                | sort -s -t $'\t' -k3,3 -u \
-                | sort -s -t $'\t' -k2,2 \
-                | awk -F $'\t' 'BEGIN { OFS = FS } { print $1, $2, $4, $5 }' \
+packages=$(find "$PKG_CACHE_DIR" -name '*.rpm' -exec rpm -q --qf '{}\t%{SOURCERPM}\t%{NAME}\t%{VERSION}\t%{SUMMARY}\n' -p '{}' \; \
+                | sort -t $'\t' -k3 --reverse \
+                | sort -t $'\t' -k3 --unique \
+                | awk -F $'\t' 'BEGIN { OFS = FS } $2 ~ $3 { print $1, $2, 0, $3, $4, $5; next; } { print $1, $2, 1, $3, $4, $5 }' \
+                | sort -t $'\t' -k3,4 \
+                | awk -F $'\t' 'BEGIN { OFS = FS } { print $1, $2, $4, $5, $6 }' \
           )
 
 [[ -z "$packages" ]] && exit
@@ -21,23 +24,55 @@ packages=$(find "$PKG_CACHE_DIR" -name '*.rpm' -exec rpm -q --qf '{}\t%{NAME}\t%
 temp_chg=$(mktemp)
 temp_diff=$(mktemp)
 
-trap 'rm -f $temp_chg $temp_diff' EXIT
+trap 'rm $temp_chg $temp_diff' EXIT
 
-pkg_sep=$(printf '=%.0s' {1..72})
+pkg_sep="  $(printf '=%.0s' {1..70})"
 
-declare -a new_packages rebuilds empty_changelogs
-while IFS=$'\t' read -r filename package new_version summary; do
-    package="${package#'~'}"
+declare -A changelogs summaries first_changelogs same_changelogs srcseen
+declare -a packages_sorted new_packages rebuilds empty_changelogs
+let all_updates=0
+
+addchlog() {
+    local package="$1"
+    local srcpkg="$2"
+    local summary="$3"
+    local chlog="$4"
+
+    pkgkey="$chlog"
+    if [[ ! "${first_changelogs[$pkgkey]+_}" ]]; then
+        packages_sorted+=( "$package" )
+        summaries["$package"]="$summary"
+        changelogs["$package"]="$chlog"
+        same_changelogs["$package"]=""
+        first_changelogs["$pkgkey"]="$package"
+
+        if [[ ! "${srcseen[$srcpkg]+_}" ]]; then
+            srcseen["$srcpkg"]="$package"
+        fi
+    else
+        local first_package="${first_changelogs[$pkgkey]}"
+        same_changelogs["${first_package}"]="${same_changelogs[$first_package]}${package}"$'\t'"${summary}"$'\n'
+    fi
+}
+
+while IFS=$'\t' read -r filename srcpkg package new_version summary; do
     if rpm -q --changelog "$package" >|"$temp_chg"; then
+        let all_updates++
         temp_pkg_diff=$(rpm -q --changelog -p "$filename" | diff --unchanged-line-format= --old-line-format= --new-line-format='%L' "$temp_chg" -)
         if [[ -n "$temp_pkg_diff" ]]; then
-            printf 'Δ %s: %s\n%s\n\n%s\n\n' "$package" "$summary" "$pkg_sep" "$temp_pkg_diff" >>"$temp_diff"
+            addchlog "$package" "$srcpkg" "$summary" "$temp_pkg_diff"
         else
-            version=$(rpm -q --qf '%{VERSION}' "$package")
+            version=$(rpm -q --qf '%{VERSION}'$'\n' "$package" | tail -n 1)
             [[ "$new_version" == "$version" ]] && rebuilds+=("$package") || empty_changelogs+=("$package")
         fi
     else
         new_packages+=("$package")
+        if [[ "${srcseen[$srcpkg]+_}" ]]; then
+            first_package="${srcseen[$srcpkg]}"
+            same_changelogs["${first_package}"]="${same_changelogs[$first_package]}${package}"$'\t'"${summary}"$'\n'
+        else
+            addchlog "$package" "$srcpkg" "$summary" "$(rpm -q --changelog -p "$filename" | awk '/^$/ {exit} 1')"
+        fi
     fi
 done <<<"$packages"
 
@@ -47,17 +82,39 @@ print_array() {
     shift
 
     (( "$#" != 0 )) || return
-    printf 'Δ %s\n%s\n\n' "$title" "$pkg_sep"
-    printf '* %s\n' "$@"
+    printf "${COLOR1}Δ %s\n%s\n\n" "$title" "$pkg_sep"
+    printf '* %s\n' $(tr ' ' '\n' <<<"$@" | sort -u)
     printf '\n'
-} >>"$temp_diff"
+}
 
-print_array "New packages" "${new_packages[@]}"
-print_array "Rebuilds" "${rebuilds[@]}"
-print_array "Empty changelogs" "${empty_changelogs[@]}"
+{
+    printf "${COLOR1}Δ Summary\n"
+    printf '  * New: %s\n' "${#new_packages[@]}"
+    printf '  * Updates: %s\n' "${all_updates}"
+    printf '  * Rebuilds: %s\n' "${#rebuilds[@]}"
+    printf '\n'
+
+    packages_sorted=($(tr ' ' '\n' <<<"${packages_sorted[@]}" | sort))
+
+    for package in "${packages_sorted[@]}"; do
+        summary=${summaries[$package]}
+        changelog=${changelogs[$package]}
+        printf "${COLOR1}Δ %s: %s\n" "$package" "$summary"
+        other_packages=${same_changelogs[$package]}
+        while IFS=$'\t' read -r another_package summ && [[ -n "$another_package" ]]; do
+            printf "${COLOR2}  ↳ %s: %s\n" "$another_package" "$summ"
+        done <<<"$other_packages" | sort -u
+        printf "%s\n\n%s\n\n" "$pkg_sep" "$changelog"
+    done
+
+    print_array "New packages" "${new_packages[@]}"
+    print_array "Rebuilds" "${rebuilds[@]}"
+    print_array "Empty changelogs" "${empty_changelogs[@]}"
+} >>"$temp_diff"
 
 # display diff using PAGER
 
 if [[ -s "$temp_diff" ]]; then
-    ${PAGER-less} --pattern="Δ" "$temp_diff"
+    export LESS="${LESS} --pattern=Δ"
+    ${PAGER-less} "$temp_diff"
 fi
