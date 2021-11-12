@@ -87,11 +87,15 @@ print_array() {
     printf '\n'
 }
 
+get_array_length() {
+    echo "$#"
+}
+
 {
     printf "${COLOR1}Δ Summary\n"
-    printf '  * New: %s\n' "${#new_packages[@]}"
+    printf '  * New: %s\n' $(get_array_length "${new_packages[@]}")
     printf '  * Updates: %s\n' "${all_updates}"
-    printf '  * Rebuilds: %s\n' "${#rebuilds[@]}"
+    printf '  * Rebuilds: %s\n' $(get_array_length "${rebuilds[@]}")
     printf '\n'
 
     packages_sorted=($(tr ' ' '\n' <<<"${packages_sorted[@]}" | sort))
