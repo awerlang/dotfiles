@@ -36,3 +36,4 @@ if [[ ! :$PATH: == *:"$NEW_PATHS":* ]] ; then
     export PATH="$NEW_PATHS:$PATH"
 fi
 export QT_LOGGING_RULES='*=false'
+export PYTHONPATH="$(python3 -m site --user-site)"
