@@ -22,9 +22,8 @@ packages=$(find "$PKG_CACHE_DIR" -name '*.rpm' -exec rpm -q --qf '{}\t%{SOURCERP
 [[ -z "$packages" ]] && exit
 
 temp_chg=$(mktemp)
-temp_diff=$(mktemp)
 
-trap 'rm $temp_chg $temp_diff' EXIT
+trap 'rm $temp_chg' EXIT
 
 pkg_sep="  $(printf '=%.0s' {1..70})"
 
@@ -114,11 +113,4 @@ get_array_length() {
     print_array "New packages" "${new_packages[@]}"
     print_array "Rebuilds" "${rebuilds[@]}"
     print_array "Empty changelogs" "${empty_changelogs[@]}"
-} >>"$temp_diff"
-
-# display diff using PAGER
-
-if [[ -s "$temp_diff" ]]; then
-    export LESS="${LESS} --pattern=Δ"
-    ${PAGER-less} "$temp_diff"
-fi
+}

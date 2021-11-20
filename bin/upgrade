@@ -6,7 +6,10 @@ zypper() {
     sudo 'zypper' --no-refresh --pkg-cache-dir "$PKG_CACHE_DIR" "$@"
 }
 
-zypper-changelog "$PKG_CACHE_DIR"
+tmp_changelog=$(mktemp)
+trap 'rm $tmp_changelog' EXIT
+zypper-changelog "$PKG_CACHE_DIR" >"$tmp_changelog"
+LESS="${LESS} --pattern=Δ" ${PAGER-less} "$tmp_changelog"
 
 if which etckeeper >/dev/null && sudo etckeeper unclean; then
     echo "There are uncommited changes in /etc, please review."
