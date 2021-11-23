@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+import datetime
+import glob
+import itertools
+import os
+import re
+import rpm
+import sys
+
+pkg_cache_dir = sys.argv[1] if len(sys.argv) >= 2 else '/var/cache/zypp/packages'
+pkg_sep = '=' * 70
+
+class Color:
+    no_color = u"\u001b[0m"
+
+    def __init__(self, color):
+        self.color = color
+
+    def __rshift__(self, text):
+        return f'{self.color}{text}{Color.no_color}'
+
+color1 = Color(u"\u001b[38;5;202m")
+color2 = Color(u"\u001b[38;5;32m")
+color3 = Color(u"\u001b[38;5;242m")
+
+def list_packages():
+    return glob.glob(f'{pkg_cache_dir}/**/*.rpm', recursive=True)
+
+def list_packages_sorted():
+    return sorted(list_packages(), reverse=True)
+
+def get_rpm_trans():
+    return rpm.TransactionSet()
+
+def get_package_info_from_database(ts, package):
+    """Queries RPM database by pckage name
+
+    >>> get_package_info_from_database(get_rpm_trans(), 'kernel-default')[rpm.RPMTAG_NAME]
+    'kernel-default'
+    """
+
+    hdr = None
+    for hdr in ts.dbMatch('name', package):
+        pass
+    return hdr
+
+def get_package_info_from_file(ts, filename):
+    fd = os.open(filename, os.O_RDONLY)
+    h = ts.hdrFromFdno(fd)
+    os.close(fd)
+    return h
+
+def get_changelog(header):
+    times = header[rpm.RPMTAG_CHANGELOGTIME]
+    names = header[rpm.RPMTAG_CHANGELOGNAME]
+    texts = header[rpm.RPMTAG_CHANGELOGTEXT]
+    return list(zip(times, names, texts))
+
+def get_changelog_diff(installed, updated):
+    """Returns new and updated change log entries
+
+    >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(2000, "John Doe", "Some text")])
+    ([], [])
+    >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(2000, "John Doe", "Some text\\nadded text")])
+    ([], [(2000, 'John Doe', 'added text')])
+    >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(2000, "John Doe", "Some new text"), (1000, "John Doe", "Some text")])
+    ([(2000, 'John Doe', 'Some new text')], [])
+    """
+    def pairwise(iterable):
+        "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+        a, b = itertools.tee(iterable)
+        next(b, None)
+        return zip(a, b)
+
+    new = []
+    modified = []
+    upd_iter = pairwise(iter(updated + [None]))
+    ins_iter = pairwise(iter(installed + [None]))
+
+    curr_ins, next_ins = next(ins_iter, (None, None))
+    curr_upd, next_upd = next(upd_iter, (None, None))
+    changelog = new
+    while curr_upd:
+        take_ins = False
+        if curr_ins:
+            u_time, u_name, u_text = curr_upd
+            i_time, i_name, i_text = curr_ins
+            if u_text == i_text:
+                take_ins = True
+                changelog = modified
+            elif next_ins == next_upd:
+                # updated modifies installed
+                take_ins = True
+                changelog = modified
+                new_text = '\n'.join(line for line in u_text.split('\n') if line not in i_text.split('\n'))
+                changelog.append((u_time, u_name, new_text))
+            else:
+                # updated was inserted
+                changelog.append(curr_upd)
+        else:
+            # updated was inserted
+            changelog.append(curr_upd)
+
+        if take_ins:
+            curr_ins, next_ins = next(ins_iter, (None, None))
+        curr_upd, next_upd = next(upd_iter, (None, None))
+
+    return new, modified
+
+def format_changelog(entries):
+    """Formats changelog for a package
+
+    >>> format_changelog(([], []))
+    ''
+    >>> format_changelog(([(0, 'John Doe', 'Text 1')], []))
+    '* Wed Dec 31 1969 John Doe\\nText 1\\n'
+    >>> format_changelog(([(0, 'John Doe', 'Text 1')], [(100000, 'Jane Doe', 'Text 2')]))
+    '* Wed Dec 31 1969 John Doe\\nText 1\\n\\n\\x1b[38;5;242m* Fri Jan 02 1970 Jane Doe\\x1b[0m\\n\\x1b[38;5;242mText 2\\x1b[0m\\n'
+    """
+
+    def format_entry(list):
+        datefmt = '{:%a %b %d %Y}'
+        return '\n'.join([f'* {datefmt.format(datetime.date.fromtimestamp(time))} {name}\n{text}\n' for (time, name, text) in list])
+
+    new, modified = entries
+    new_lines = format_entry(new)
+    upd_lines = '\n'.join([line and (color3 >> line) for line in format_entry(modified).split('\n')])
+    new_line = '\n' if new_lines and upd_lines else ''
+    return new_lines + new_line + upd_lines
+
+def get_string_sort_key(s):
+    """Returns lower-case string with separators removed
+
+    >>> get_string_sort_key('Pkg-1')
+    'pkg1'
+    >>> get_string_sort_key('Pkg-1.src.rpm')
+    'pkg1srcrpm'
+    """
+
+    return re.sub(r'[^\w\s]', '', s).lower()
+
+def print_summary():
+    print(color1 >> 'Δ Summary')
+    print(f'  * New: {len(new_packages)}')
+    print(f'  * Updates: {len(updates)}')
+    print(f'  * Rebuilds: {len(rebuilds)}')
+    print('')
+
+def group_package_by_sourcerpm(arr):
+    groups = {}
+    for pkg in sorted(arr, key=lambda x: (int(not x["sourcerpm"].startswith(x["name"])), get_string_sort_key(x["name"]))):
+        sourcerpm = pkg["sourcerpm"]
+        if not sourcerpm in groups:
+            groups[sourcerpm] = [pkg]
+        else:
+            groups[sourcerpm].append(pkg)
+
+    return groups
+
+def print_array(title, arr):
+    """Prints a list of packages
+
+    >>> print_array('List 1', [])
+    >>> print_array('List 2', [{"name":'Package1',"summary":'Summary for Package1',"sourcerpm":'Package1.src.rpm'}, {"name":'Package-util1',"summary":'Summary for Package-util1',"sourcerpm":'Package1.src.rpm'}])
+    \u001b[38;5;202mΔ List 2\u001b[0m
+      ======================================================================
+    <BLANKLINE>
+    * Package1: Summary for Package1
+      * Package-util1: Summary for Package-util1
+    <BLANKLINE>
+    """
+
+    if len(arr) == 0:
+        return
+    print(color1 >> f'Δ {title}')
+    print(f'  {pkg_sep}')
+    print('')
+
+    groups = group_package_by_sourcerpm(arr)
+
+    for sourcerpm in sorted(groups, key=lambda x: get_string_sort_key(x)):
+        lead = groups[sourcerpm][0]
+        print(f'* {lead["name"]}: {lead["summary"]}')
+        for pkg in sorted(groups[sourcerpm][1 :], key=lambda x: x["name"].lower()):
+            print(f'  * {pkg["name"]}: {pkg["summary"]}')
+    print('')
+
+def get_report():
+    def get_packages_from_files(ts=get_rpm_trans()):
+        packages = [get_package_info_from_file(ts, filename) for filename in list_packages_sorted()]
+
+        seen = set() 
+        packages = [seen.add(pkg.name) or pkg for pkg in packages if pkg.name not in seen]
+
+        return [(pkg, get_package_info_from_database(ts, pkg.name)) for pkg in packages]
+
+    packages = get_packages_from_files()
+    if len(packages) == 0:
+        return
+
+    global new_packages
+    new_packages = []
+    global rebuilds
+    rebuilds = []
+    global updates
+    updates = []
+
+    related_packages = {}
+    sources = {}
+    changelogs = []    
+
+    unique_changelogs = {}
+
+    def add_changelog(package, changelog):
+        if (changelog and changelog in unique_changelogs):
+            previous = sources[unique_changelogs[changelog].sourcerpm]
+            if not next((item for item in related_packages[previous.name] if item.name == package.name), None):
+                related_packages[previous.name].append(package)
+        else:
+            unique_changelogs[changelog] = package
+            changelogs.append((package, changelog))
+            sources[package.sourcerpm] = package
+            if package.name not in related_packages:
+                related_packages[package.name] = []
+
+    def add_related_package(package):
+        first_package = sources[package.sourcerpm]
+        if not next((item for item in related_packages[first_package.name] if item.name == package.name), None):
+            related_packages[first_package.name].append(package)
+
+    for (new, existing) in sorted(packages, key=lambda x: (int(not x[0].sourcerpm.startswith(x[0].name)), get_string_sort_key(x[0].name))):
+        if existing:
+            updates.append(new)
+            if new.sourcerpm not in sources:
+                changelog = format_changelog(get_changelog_diff(get_changelog(existing), get_changelog(new)))
+
+                add_changelog(new, changelog)
+            else:
+                add_related_package(new)
+        else:
+            new_packages.append(new)
+
+    for new in new_packages:
+        if new.sourcerpm not in sources:
+            changelog = format_changelog((get_changelog(new)[:1], []))
+
+            add_changelog(new, changelog)
+        else:
+            add_related_package(new)
+
+    rebuilds = [new for (new, existing) in packages if existing and new.version == existing.version and new.release.split('.')[0] == existing.release.split('.')[0]]
+
+    print_summary()
+
+    for (pkg, changelog) in sorted(changelogs, key=lambda x: get_string_sort_key(x[0].name)):
+        if changelog:
+            print(color1 >> f'Δ {pkg.name}: {pkg.summary}')
+            for related in sorted(related_packages[pkg.name], key=lambda x: x.name.lower()):
+                print(color2 >> f'  ↳ {related.name}: {related.summary}')
+            print(f'  {pkg_sep}')
+            print('')
+            print(changelog)
+
+    print_array('New packages', sorted(new_packages, key=lambda x: get_string_sort_key(x.name)))
+    print_array('Rebuilds', rebuilds)
+
+def main():
+    try:
+        get_report()
+    except BrokenPipeError:
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(devnull, sys.stdout.fileno())
+
+# if __name__ == '__main__':
+#     import doctest
+#     doctest.testmod()
+
+if __name__ == '__main__':
+    main()
