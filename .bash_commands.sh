@@ -33,6 +33,7 @@ zypper search --requires-pkg --recommends-pkg --supplements-pkg --suggests-pkg  
 sudo fgrep '|install|' /var/log/zypp/history | awk -F'|' '{print $3}' | sort | uniq --count | sort --human-numeric-sort --reverse | less    # packages: upgrade count
 
 flatpak override --user --no-filesystem=home 
+flatpak override --user --show
 flatpak info --show-permissions 
 
 etckeeper commit

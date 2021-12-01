@@ -71,7 +71,7 @@
 	ff = only
 
 [push]
-    default = matching
+    default = upstream
     followTags = true
     rebase = true
 
