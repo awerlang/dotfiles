@@ -72,6 +72,11 @@ def get_changelog_diff(installed, updated):
         next(b, None)
         return zip(a, b)
 
+    def approx_entry(a, b):
+        a_time, a_name, a_text = a
+        b_time, b_name, b_text = b
+        return a_text.split('\n')[0] == b_text.split('\n')[0]        
+
     new = []
     modified = []
     upd_iter = pairwise(iter(updated + [None]))
@@ -88,7 +93,7 @@ def get_changelog_diff(installed, updated):
             if u_text == i_text:
                 take_ins = True
                 changelog = modified
-            elif next_ins == next_upd:
+            elif approx_entry(next_ins, next_upd):
                 # updated modifies installed
                 take_ins = True
                 changelog = modified
