@@ -7,7 +7,6 @@
 # | repo-oss    | openSUSE-Tumbleweed-Oss    | *        |
 # | repo-update | openSUSE-Tumbleweed-Update | *        |
 # | code        | Visual Studio Code         |          |
-# | NVIDIA      | NVIDIA                     |          |
 
 set -o nounset -o noclobber -o pipefail
 
@@ -31,7 +30,6 @@ main() {
     vscode
     local major updates
     major=$(kernel)
-    nvidia "$major"
     updates=$(system)
     hotfixes
 
@@ -116,24 +114,6 @@ kernel() {
     fi
 
     result "$major"
-}
-
-nvidia() {
-    zypper repos NVIDIA &>/dev/null || return
-
-    task "Checking NVIDIA"
-
-    local major=$1
-
-    if ! zypper list-updates --repo NVIDIA | grep "^v " >/dev/null; then
-        if [[ -n "$major" ]]; then
-            content "Locking kernel update."
-            sudo zypper addlock 'kernel-*' >/dev/null
-        fi
-    else
-        content "Unlocking kernel update."
-        sudo zypper removelock 'kernel-*' >/dev/null
-    fi
 }
 
 system() {
