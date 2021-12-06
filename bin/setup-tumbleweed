@@ -493,7 +493,7 @@ review() {
     fi
 
     # rebuild initramfs, in order to pick up changes in configuration and packages
-    sudo mkinitrd >/dev/null
+    sudo dracut -f --regenerate-all >/dev/null
 }
 
 todo_next() {
