@@ -30,7 +30,8 @@ zypper search                   # packages
 zypper search --details         # packages
 zypper search --requires --recommends --supplements --suggests                  # packages: dependencies
 zypper search --requires-pkg --recommends-pkg --supplements-pkg --suggests-pkg  # packages: provides
-sudo fgrep '|install|' /var/log/zypp/history | awk -F'|' '{print $3}' | sort | uniq --count | sort --human-numeric-sort --reverse | less    # packages: upgrade count
+sudo cat /var/log/zypp/history | fgrep '|install|' | awk -F'|' '{print $3}' | sort | uniq --count | sort --human-numeric-sort --reverse | less    # packages: upgrade count
+sudo cat /var/log/zypp/history | cut -d "|" -f 1-4 -s --output-delimiter " | " | grep -v " radd "       # packages: installs/removals
 
 flatpak override --user --no-filesystem=home 
 flatpak override --user --show
