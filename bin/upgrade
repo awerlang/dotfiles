@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o errexit -o nounset -o noclobber -o pipefail
+
 PKG_CACHE_DIR="$HOME/.cache/zypp/packages"
 
 zypper() {

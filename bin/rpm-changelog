@@ -61,8 +61,8 @@ def get_changelog_diff(installed, updated):
 
     >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(2000, "John Doe", "Some text")])
     ([], [])
-    >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(2000, "John Doe", "Some text\\nadded text")])
-    ([], [(2000, 'John Doe', 'added text')])
+    >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(1000, "John Doe", "Some text\\nadded text")])
+    ([], [(1000, 'John Doe', 'added text')])
     >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(2000, "John Doe", "Some new text"), (1000, "John Doe", "Some text")])
     ([(2000, 'John Doe', 'Some new text')], [])
     """
@@ -73,9 +73,11 @@ def get_changelog_diff(installed, updated):
         return zip(a, b)
 
     def approx_entry(a, b):
+        if a == None or b == None:
+            return a == None and b == None
         a_time, a_name, a_text = a
         b_time, b_name, b_text = b
-        return a_text.split('\n')[0] == b_text.split('\n')[0]        
+        return a_text.split('\n')[0] == b_text.split('\n')[0]
 
     new = []
     modified = []
