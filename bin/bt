@@ -1,0 +1,6 @@
+#!/bin/bash
+card=$(pactl list cards | grep 'device.name' | grep -Eo 'bluez_card\..{17}') || exit 1
+path=/card/$card/bluez
+active=$(pactl send-message "$path" get-codec | jq)
+pactl send-message "$path" list-codecs | jq -r '.[] | if .name == '"$active"' then "> " + .description else "  " + .description end'
+# pactl send-message $path switch-codec '"CODEC"'
