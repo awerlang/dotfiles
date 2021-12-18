@@ -117,6 +117,10 @@ duh() {
     du $(find "$path" -name "$pattern") | awk '{total += $1} END {print total "K"}'
 }
 
+tldr() {
+    command tldr --color=always "$@" | less -F
+}
+
 edit() {
     $EDITOR "$(browse)"
 }
