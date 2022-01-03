@@ -68,6 +68,7 @@ smartctl -a /dev/nvme0n1    # storage: health
 smartctl -a /dev/sda        # storage: health
 smartctl --scan             # storage: health
 nvme error-log              # storage: health
+upower --dump
 
 grep '\[.*\]' /sys/block/*/queue/scheduler  # storage: I/O scheduler
 sudo lsblk --output=NAME,FSTYPE,LABEL,PARTLABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINT,SIZE,OWNER,GROUP,MODE,SCHED,STATE,TRAN   # storage: partitions
@@ -148,6 +149,7 @@ sort --unique source.txt                            # sort: unique
 sort --unique --output source.txt{,}                # sort: in-place
 xxd -c 48 -l 1000000 FILENAME | less    # hex view
 xmllint --xpath '/root/child/@attr' -   # text: xml xpath expression
+xmllint --format - | bat                # text: xml pretty print
 
 watch -- 
 watch -- sensors
