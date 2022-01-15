@@ -28,9 +28,9 @@
 ##      RUN_ZYPPER          = no
 ##
 ### LICENSE
-##      zypper-download v0.2
+##      zypper-download v0.3
 ##
-##      Copyright (C) 2020 André Werlang
+##      Copyright (C) 2020-2021 André Werlang
 ##
 ##      License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 ##      This is free software: you are free to change and redistribute it.

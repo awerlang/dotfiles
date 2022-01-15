@@ -98,6 +98,7 @@ ps afux | less -S   # system: processes
 ps -U root -u root fu | less -S # processes list user tree
 ps -eo user= | sort | uniq --count | sort --reverse --numeric-sort # system: processes
 pidof PROCESS   # system: processes
+iotop -oPa      # system: I/O
 
 sudo lspci -vv  # system: pci -- verbose
 sudo lspci -tv  # system: pci

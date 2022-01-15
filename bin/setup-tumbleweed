@@ -151,16 +151,23 @@ install_packages() {
     confirm "Install additional packages" || return
 
     declare -a pkgs=(
-                    # most useful programs
+                    # system diagnostics
                     "compsize"
-                    "flatpak"
+                    "dstat"
                     "htop"
+                    "ioping"
+                    "iotop"
                     "mtr"
                     "ncdu"
                     "pv"
+
+                    # system management
+                    "flatpak"
                     "rpmconf"
-                    "smplayer"
                     "udisks2"
+
+                    # most useful programs
+                    "smplayer"
                     "yakuake"
 
                     # additional hardware management
@@ -284,6 +291,7 @@ Cmnd_Alias  ADMIN = /usr/bin/etckeeper, \\
                     /usr/bin/systemctl start openvpn@work.service, \\
                     /usr/bin/systemctl stop openvpn@work.service, \\
                     /usr/bin/zypper, \\
+                    /usr/sbin/iotop, \\
                     /usr/sbin/rpmconf, \\
                     /usr/sbin/rpmconfigcheck
 
@@ -304,6 +312,11 @@ EOF
     # enable all SysRq functions
     sudo tee /etc/sysctl.d/99-sysrq.conf >/dev/null <<EOF
 kernel.sysrq = 1
+EOF
+
+    # enable accounting
+    sudo tee /etc/sysctl.d/99-task.conf >/dev/null <<EOF
+kernel.task_delayacct=1
 EOF
 
     # enable large inotify watcher count
