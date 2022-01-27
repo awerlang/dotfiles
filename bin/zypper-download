@@ -28,9 +28,9 @@
 ##      RUN_ZYPPER          = no
 ##
 ### LICENSE
-##      zypper-download v0.3
+##      zypper-download v0.3.1
 ##
-##      Copyright (C) 2020-2021 André Werlang
+##      Copyright (C) 2020-2022 André Werlang
 ##
 ##      License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
 ##      This is free software: you are free to change and redistribute it.
@@ -120,6 +120,7 @@ package_dir() {
 run() {
     call_zypper "${SUB_COMMAND[@]}" \
         | create_download_spec \
+        | tee ./zypper-download.log \
         | download_all
 
     check_rpm || { error "Package signature failed"; exit 1; }
