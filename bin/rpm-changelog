@@ -65,6 +65,8 @@ def get_changelog_diff(installed, updated):
     ([], [(1000, 'John Doe', 'added text')])
     >>> get_changelog_diff([(1000, "John Doe", "Some text")], [(2000, "John Doe", "Some new text"), (1000, "John Doe", "Some text")])
     ([(2000, 'John Doe', 'Some new text')], [])
+    >>> get_changelog_diff([(2000, "John Doe", "Line 1\\nLine 2\\Line 3"), (1000, "John Doe", "Line 1000")], [(3000, "John Doe", "Line 3000"), (2000, "John Doe", "Line 2000\\nLine 2\\Line 3"), (1000, "John Doe", "Line 1000")])
+    ([(3000, 'John Doe', 'Line 3000')], [(2000, 'John Doe', 'Line 2000')])
     """
     def pairwise(iterable):
         "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -72,12 +74,25 @@ def get_changelog_diff(installed, updated):
         next(b, None)
         return zip(a, b)
 
+    def is_similar(a, b):
+        a_lines = a.split('\n')
+        b_lines = b.split('\n')
+        return a_lines[0] == b_lines[0] and a_lines[-1] == b_lines[-1]
+
+    def is_similar_enough(a, b):
+        a_lines = a.split('\n')
+        b_lines = b.split('\n')
+
+        matches = [line for line in a_lines if line in b_lines]
+
+        return (len(matches) / len(a_lines)) > 0.5
+
     def approx_entry(a, b):
         if a == None or b == None:
             return a == None and b == None
         a_time, a_name, a_text = a
         b_time, b_name, b_text = b
-        return a_text.split('\n')[0] == b_text.split('\n')[0]
+        return is_similar_enough(a_text, b_text)
 
     new = []
     modified = []
