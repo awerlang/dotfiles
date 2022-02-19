@@ -22,6 +22,7 @@ systemd-analyze                 # startup
 systemd-analyze critical-chain  # startup
 systemd-analyze blame           # startup
 
+rpm -q --triggers PACKAGE       # list triggers for package
 rpm -q -qf FILE                 # which package provides file
 rpm -q -ql PACKAGE              # list files installed by package
 rpm -qa                         # all packages
