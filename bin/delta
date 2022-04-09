@@ -5,8 +5,8 @@ exec bwrap --ro-bind / / \
            --dev /dev \
            --unshare-all \
            --die-with-parent \
-           -- /usr/bin/delta "$@" --theme='zenburn' \
-                                  --plus-color="#00431B" \
-                                  --plus-emph-color="#008F39" \
-                                  --minus-color="#43001B" \
-                                  --minus-emph-color="#8F0039"
+           -- /usr/bin/delta "$@" --syntax-theme='zenburn' \
+                                  --plus-style="syntax #00431B" \
+                                  --plus-emph-style="syntax #008F39" \
+                                  --minus-style="normal #43001B" \
+                                  --minus-emph-style="normal #8F0039"

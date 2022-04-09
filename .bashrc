@@ -98,7 +98,7 @@ alias g='git'
 __git_complete g __git_main
 
 diff() {
-    command diff -u "$1" "$2" | delta
+    command diff -u "$@" | delta
 }
 
 highlight() {
