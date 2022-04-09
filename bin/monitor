@@ -1,0 +1,7 @@
+#!/bin/sh
+tmux rename-session monitor
+tmux send-keys 'watch -- iostat -m' C-m
+tmux split-window -h 'vmstat -Sm 2'
+tmux split-window -v 'dstat --vmstat'
+tmux select-pane -t 1
+tmux split-window -v 'sudo iotop -oPa'
