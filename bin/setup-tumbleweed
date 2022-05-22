@@ -407,23 +407,6 @@ fstab() {
     confirm "Overwrite $file" && apply | sudo tee $file >/dev/null
 }
 
-micro_bin() {
-    confirm "Download and place the micro binary in path" || return
-
-    local version=2.0.10
-    local sha512="ecfdf2f07bb61693e5e9aa0145df865a1f4c74aeecdc72c391d35af2d2da45737e692e3223f9ccf668a8cd3f79593e86d1b6e7128249f4ded1e410a416cd0679  micro-$version-linux64.tar.gz"
-
-    local outdir
-    outdir=$(mktemp -d)
-    pushd "$outdir" >/dev/null || return
-    wget --quiet "https://github.com/zyedidia/micro/releases/download/v$version/micro-$version-linux64.tar.gz" \
-        && sha512sum --check --status - <<<"$sha512" \
-        && tar -xf "micro-$version-linux64.tar.gz" \
-        && sudo 'install' -D -s -T "micro-$version/micro" /opt/bin/micro
-    popd >/dev/null || return
-    rmdir "$outdir"
-}
-
 spotify() {
     confirm "Configure Spotify" || return
 

@@ -102,6 +102,7 @@ install_deps() {
                                 libnotify-tools \
                                 libxml2-tools \
                                 meld \
+                                micro-editor \
                                 podman \
                                 powerline \
                                 python3-pip \
