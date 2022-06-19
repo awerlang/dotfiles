@@ -7,6 +7,7 @@
 .config/k*
 .config/pulse
 .config/session
+.config/smplayer
 .local/share
 .kde4
 .nv
@@ -17,5 +18,6 @@
 .zoom
 Documents
 Downloads
+Pictures
 src
 *.local
