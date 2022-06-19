@@ -1,7 +1,8 @@
 #!/bin/sh
 tmux rename-session monitor
-tmux send-keys 'watch -- iostat -m' C-m
-tmux split-window -h 'vmstat -Sm 2'
-tmux split-window -v 'dstat --vmstat'
+tmux send-keys 'sudo iotop -oPa -d 10' C-m
+tmux split-window -h 'sudo ~/bin/filetop -Cr 10 -s wbytes 60'
+tmux split-window -v 'cd /mnt; sudo fatrace --current-mount -f W'
 tmux select-pane -t 1
-tmux split-window -v 'sudo iotop -oPa'
+tmux split-window -v 'watch -n 10 -- iostat -m'
+tmux split-window -v 'dstat --vmstat 10'
