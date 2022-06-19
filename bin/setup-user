@@ -33,6 +33,7 @@ sub_volumes() {
     move_subvolume "${HOME}/.vscode"
     move_subvolume "${HOME}/.local/share/baloo"
     move_subvolume "${HOME}/.local/share/containers"
+    move_subvolume "${HOME}/.mozilla"
 }
 
 move_subvolume() {
@@ -44,8 +45,10 @@ move_subvolume() {
 
     mv "$directory"{,.old} \
         && btrfs subvolume create "$directory" \
+        && chattr +C "$directory" \
         && cp -a "${directory}"{.old/.,/} \
         && rm -rf "${directory}".old
+    sync
 }
 
 podman_rootless() {
