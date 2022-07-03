@@ -460,19 +460,8 @@ spotifyd_bin() {
 spotify_connect() {
     confirm "Enable Spotify Connect" || return
 
-    sudo tee /etc/firewalld/services/spotify.xml >/dev/null <<EOF
-<?xml version="1.0" encoding="utf-8"?>
-<service>
-  <short>Spotify</short>
-  <description>Spotify Connect</description>
-  <port protocol="udp" port="5353"/>
-  <port protocol="tcp" port="57621"/>
-</service>
-EOF
-
-    sudo systemctl restart firewalld
-    sudo firewall-cmd --quiet --zone=home --add-service=spotify
-    sudo firewall-cmd --quiet --permanent --zone=home --add-service=spotify
+    sudo firewall-cmd --quiet --zone=home --add-service=spotify-sync
+    sudo firewall-cmd --quiet --permanent --zone=home --add-service=spotify-sync
 }
 
 spotify_service() {
