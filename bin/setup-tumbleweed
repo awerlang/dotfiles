@@ -267,8 +267,8 @@ flatpaks() {
 
     #shellcheck disable=SC2068
     (( ${#to_install[@]} )) \
-        && sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo \
-        && flatpak install --app flathub ${to_install[@]}
+        && flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo \
+        && flatpak install --user --app flathub ${to_install[@]}
 }
 
 auto_updates() {
