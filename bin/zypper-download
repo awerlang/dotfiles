@@ -28,7 +28,7 @@
 ##      RUN_ZYPPER          = no
 ##
 ### LICENSE
-##      zypper-download v0.3.1
+##      zypper-download v0.3.2
 ##
 ##      Copyright (C) 2020-2022 André Werlang
 ##
@@ -154,7 +154,7 @@ create_download_spec() {
         BEGIN {
             print "BEGIN {";
         }
-        /^[0-9]/ {
+        /:\/\// {
             alias=trim($2);
             name=trim($3);
             uri=trim($NF);
