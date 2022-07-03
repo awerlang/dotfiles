@@ -27,6 +27,7 @@ for option in autocd dotglob extglob; do
     shopt -s $option &>/dev/null
 done
 
+source /usr/share/bash-completion/completions/git
 __git_complete dotfiles __git_main
 complete -o default -o nospace -F _zypper zypper-download
 
