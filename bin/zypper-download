@@ -28,7 +28,7 @@
 ##      RUN_ZYPPER          = no
 ##
 ### LICENSE
-##      zypper-download v0.3.2
+##      zypper-download v0.3.3
 ##
 ##      Copyright (C) 2020-2022 André Werlang
 ##
@@ -186,8 +186,7 @@ create_download_spec() {
             arch=$1;        getline;
             repo=trim($0);  getline;
             host=uri[repo];
-            suffix=index(host, "//download.opensuse.org") != 0 ? ".meta4" : "";
-            print host "/" arch "/" name "-" version "." arch ".rpm" suffix;
+            print host "/" arch "/" name "-" version "." arch ".rpm";
             print "  dir=" PKG_CACHE_DIR "/" alias[repo] "/" arch;
         }
         ' -
@@ -195,7 +194,7 @@ create_download_spec() {
 
 download_all() {
     aria2c --input-file=- \
-           --max-connection-per-server=10 \
+           --max-connection-per-server=6 \
            --split=16 \
            --min-split-size=1M \
            --check-integrity=true \
