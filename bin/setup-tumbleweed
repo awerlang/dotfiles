@@ -152,26 +152,49 @@ install_packages() {
 
     declare -a pkgs=(
                     # system diagnostics
+                    "bcc-tools"
+                    "btop"
                     "compsize"
                     "dstat"
+                    "fatrace"
+                    "hardinfo"
                     "htop"
                     "ioping"
                     "iotop"
                     "mtr"
                     "ncdu"
                     "pv"
+                    "smem"
+                    "strace"
+                    "sysstat"
 
-                    # system management
-                    "flatpak"
-                    "rpmconf"
+                    # system services
+                    "bluez-obexd"
+                    "docker"
+                    "docker-compose"
+                    "openvpn"
+                    "qemu"
+                    "rtkit"
+                    "pipewire"
+                    "pipewire-pulseaudio"
+                    "systemd-network"
+                    "virt-manager"
                     "udisks2"
+                    "wireplumber"
+                    "wireplumber-audio"
 
                     # most useful programs
+                    "chromium"
+                    "flatpak"
+                    "fortune"
+                    "flameshot"
                     "smplayer"
+                    "tealdeer"
                     "yakuake"
 
                     # additional hardware management
                     "nvme-cli"
+                    "spectre-meltdown-checker"
                     "xdpyinfo"
 
                     # fonts
