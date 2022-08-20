@@ -24,6 +24,9 @@ if zypper dup --no-allow-arch-change --details --auto-agree-with-licenses; then
     local-overrides
 fi
 
-flatpak update --no-pull && flatpak update && flatpak remove --unused
+flatpak remove --unused &&
+    flatpak update --no-pull &&
+    flatpak update &&
+    flatpak remove --unused
 
 echo "Done."
