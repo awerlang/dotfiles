@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+import os
+import signal
+import sys
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('AppIndicator3', '0.1')
+from gi.repository import Gtk as gtk, AppIndicator3 as appindicator
+from enum import Enum
+from threading import Timer
+
+"""
+#!/bin/bash
+notify-send Pomodoro 'Starting pomodoro'
+while :
+do
+    sleep 25m
+    notify-send Pomodoro 'Take a break'
+    sleep 5m
+    notify-send Pomodoro 'Back to work'
+done
+"""
+
+class PomodoroState(Enum):
+    IDLE = 0
+    WORK = 1
+    SHORT_BREAK = 2
+    LONG_BREAK = 3
+
+def waitstatus_to_exitcode(status):
+    return status >> 8
+
+def shell(command):
+    status = os.system(command)
+    exitcode = waitstatus_to_exitcode(status)
+    return exitcode == 0
+
+class Indicator:
+
+    def __init__(self):
+        self.indicator = appindicator.Indicator.new("customtray", "chronometer-start", appindicator.IndicatorCategory.APPLICATION_STATUS)
+
+    def set_menu(self, menu):
+        self.indicator.set_menu(menu)
+
+    def set_icon(self, icon_name):
+        self.indicator.set_icon_full(icon_name, "")
+
+    def hide(self):
+        self.indicator.set_status(appindicator.IndicatorStatus.PASSIVE)
+
+    def show(self):
+        self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
+
+class App:
+    def __init__(self):
+        self.timer = None
+        self.indicator = Indicator()
+        self.indicator.set_menu(self.menu())
+        self.update_status(PomodoroState.IDLE)
+
+        signal.signal(signal.SIGINT, self.signal_handler)
+
+    def signal_handler(self, sig, frame):
+        if self.timer:
+            self.timer.cancel()
+
+        sys.exit(0)
+
+    def main(self):
+        gtk.main()
+
+    def menu(self):
+        menu = gtk.Menu()
+
+        start_cmd = gtk.MenuItem(label='Start')
+        start_cmd.connect('activate', self.start)
+        menu.append(start_cmd)
+        self.start_cmd = start_cmd
+
+        stop_cmd = gtk.MenuItem(label='Stop')
+        stop_cmd.connect('activate', self.stop)
+        stop_cmd.set_sensitive(False)
+        menu.append(stop_cmd)
+        self.stop_cmd = stop_cmd
+
+        menu.append(gtk.SeparatorMenuItem())
+
+        exittray = gtk.MenuItem(label='Exit')
+        exittray.connect('activate', self.quit)
+        menu.append(exittray)
+        
+        menu.show_all()
+        return menu
+
+    def quit(self, _):
+        gtk.main_quit()
+
+    def update_status(self, state):
+        self.state = state
+        if state == PomodoroState.IDLE:
+            self.indicator.hide()
+        else:
+            self.indicator.show()
+
+    def set_timer(self, interval, function):
+        self.timer = Timer(interval * 60, function)
+        self.timer.start()
+
+    def start(self, _):
+        self.start_cmd.set_sensitive(False)
+        self.stop_cmd.set_sensitive(True)
+
+        self.start_work()
+
+    def start_work(self):
+        self.update_status(PomodoroState.WORK)
+        self.indicator.set_icon("chronometer-lap")
+        self.set_timer(25, self.start_break)
+        shell("notify-send Pomodoro 'Back to work'")
+
+    def start_break(self):
+        self.update_status(PomodoroState.SHORT_BREAK)
+        self.indicator.set_icon("chronometer-pause")
+        self.set_timer(5, self.start_work)
+        shell("notify-send Pomodoro 'Take a break'")
+
+    def stop(self, _):
+        self.update_status(PomodoroState.IDLE)
+        self.indicator.set_icon("chronometer-start")
+        self.start_cmd.set_sensitive(True)
+        self.stop_cmd.set_sensitive(False)
+
+        self.timer.cancel()
+        self.timer = None
+
+if __name__ == "__main__":
+    App().main()
