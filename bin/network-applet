@@ -1,0 +1,91 @@
+#!/usr/bin/python3
+import os
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('AppIndicator3', '0.1')
+from gi.repository import Gtk as gtk, AppIndicator3 as appindicator
+
+def waitstatus_to_exitcode(status):
+    return status >> 8
+
+def shell(command):
+    status = os.system(command)
+    exitcode = waitstatus_to_exitcode(status)
+    return exitcode == 0
+
+class Indicator:
+
+    def __init__(self):
+        self.indicator = appindicator.Indicator.new("customtray", "network-wireless", appindicator.IndicatorCategory.APPLICATION_STATUS)
+
+    def set_menu(self, menu):
+        self.indicator.set_menu(menu)
+
+    def set_icon(self, icon_name):
+        self.indicator.set_icon_full(icon_name, "")
+
+    def hide(self):
+        self.indicator.set_status(appindicator.IndicatorStatus.PASSIVE)
+
+    def show(self):
+        self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
+
+class App:
+    def __init__(self):
+        self.indicator = Indicator()
+        self.indicator.set_menu(self.menu())
+        self.update_status()
+
+    def main(self):
+        gtk.main()
+
+    def menu(self):
+        menu = gtk.Menu()
+
+        activate_cmd = gtk.MenuItem(label='Work VPN')
+        activate_cmd.connect('activate', self.connect)
+        menu.append(activate_cmd)
+        self.activate_cmd = activate_cmd;
+
+        disconnect_cmd = gtk.MenuItem(label='Disconnect')
+        disconnect_cmd.connect('activate', self.disconnect)
+        menu.append(disconnect_cmd)
+        self.disconnect_cmd = disconnect_cmd;
+
+        menu.append(gtk.SeparatorMenuItem())
+
+        exittray = gtk.MenuItem(label='Exit')
+        exittray.connect('activate', self.quit)
+        menu.append(exittray)
+        
+        menu.show_all()
+        return menu
+
+    def quit(self, _):
+        gtk.main_quit()
+
+    def is_connected_to_vpn(self):
+        return shell("ip link show tun0")
+
+    def update_status(self):
+        if self.is_connected_to_vpn():
+            self.indicator.set_icon("network-vpn")
+            self.activate_cmd.set_sensitive(False)
+            self.disconnect_cmd.set_sensitive(True)
+            self.indicator.show()
+        else:
+            self.indicator.set_icon("network-wireless")
+            self.activate_cmd.set_sensitive(True)
+            self.disconnect_cmd.set_sensitive(False)
+            self.indicator.hide()
+
+    def connect(self, _):
+        shell("vpn up")
+        self.update_status()
+
+    def disconnect(self, _):
+        shell("vpn down")
+        self.update_status()
+
+if __name__ == "__main__":
+    App().main()
