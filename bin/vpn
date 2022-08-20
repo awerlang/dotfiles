@@ -7,6 +7,7 @@ case $command in
     up)
         sudo systemctl start "openvpn@$vpn.service"
         while ! ip link show tun0 &> /dev/null; do sleep 1; done
+        resolvectl query google.com >/dev/null
         resolvectl status tun0
         ;;
     down)
