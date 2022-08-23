@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 import os
+import subprocess
+import threading
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
-from gi.repository import Gtk as gtk, AppIndicator3 as appindicator
+from gi.repository import GLib, Gtk as gtk, AppIndicator3 as appindicator
 
 def waitstatus_to_exitcode(status):
     return status >> 8
@@ -37,6 +39,7 @@ class App:
         self.update_status()
 
     def main(self):
+        self.start_monitor()
         gtk.main()
 
     def menu(self):
@@ -63,6 +66,20 @@ class App:
 
     def quit(self, _):
         gtk.main_quit()
+
+    def start_monitor(self):
+        def update_progess():
+            self.update_status()
+            return False
+
+        def example_target():
+            monitor = subprocess.Popen(["ip", "monitor", "link"], stdout=subprocess.PIPE)
+            for line in iter(monitor.stdout.readline, b""):
+                GLib.idle_add(update_progess)
+
+        thread = threading.Thread(target=example_target)
+        thread.daemon = True
+        thread.start()
 
     def is_connected_to_vpn(self):
         return shell("ip link show tun0")
