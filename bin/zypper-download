@@ -176,14 +176,14 @@ create_download_spec() {
             pkg=0;
             next;
         }
-        / packages? (is|are) going to (be installed|be reinstalled|be upgraded|be downgraded|change architecture):$/ {
+        / packages? (is|are) going to (be installed|be reinstalled|be upgraded|be downgraded):$/ {
             pkg=1;
             next;
         }
         pkg==1 {
             name=$1;        getline;
             version=$NF;    getline;
-            arch=$1;        getline;
+            arch=$NF;       getline;
             repo=trim($0);  getline;
             host=uri[repo];
             print host "/" arch "/" name "-" version "." arch ".rpm";
