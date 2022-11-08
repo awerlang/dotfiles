@@ -79,6 +79,7 @@ alias wanip6='dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short'
 alias ipv6_on='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=0'
 alias ipv6_off='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1'
 alias lsint='watch -d -n 5 cat /proc/interrupts'
+alias optirun="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia"
 
 # sudo
 
