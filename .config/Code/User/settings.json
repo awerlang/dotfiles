@@ -21,7 +21,6 @@
     "screencastMode.onlyKeyboardShortcuts": true,
     "screencastMode.keyboardShortcutsFormat": "command",
     "telemetry.telemetryLevel": "off",
-    "timeline.excludeSources": [],
     "update.mode": "none",
     "window.menuBarVisibility": "toggle",
     "window.zoomLevel": 0,
