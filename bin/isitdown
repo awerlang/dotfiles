@@ -1,0 +1,93 @@
+#!/bin/sh
+
+# $ isitdown [domain]
+
+# TODO:
+# * IPv4/IPv6 state
+# * additional NICs
+# * VPN state
+# * dependency checks
+# * configuration/error handling
+# * exit codes
+# * clear DNS cache
+# * external DNS
+# * details for each step
+# * quality stats: latency, error rate
+# * help
+
+DOMAIN=${1-google.com}
+INTERNET=8.8.8.8
+INTERFACE=$(ip route | awk '/default/ { print $5 }')
+GATEWAY=$(ip route | awk '/default/ { print $3 }')
+
+if [[ -n $TERM ]] && [[ $TERM != "dumb" ]]; then
+    COLOR1=$(tput setaf 3)
+    COLOR2=$(tput setaf 4)
+    COLOR3=$(tput setaf 2)
+    NC=$(tput sgr0)
+else
+    COLOR1=
+    COLOR2=
+    COLOR3=
+    NC=
+fi
+
+exit_code=0
+
+ping() {
+    command ping -q -c 1 $1 >/dev/null
+}
+
+local_ip() {
+    ip address show $INTERFACE | grep -w "$1" | awk '/global/ {print $2}'
+}
+
+info() {
+    printf "Default gateway\t\t%s\n" $GATEWAY
+    printf "Local IPv4 address\t%s\n" $(local_ip inet)
+    printf "Local IPv6 address\t%s\n" $(local_ip inet6)
+    printf "External IPv4 address\t%s\n" $(dig @resolver1.opendns.com -4 myip.opendns.com A +short)
+    printf "External IPv6 address\t%s\n" $(dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short)
+}
+
+verify() {
+    local status=$?
+    local result
+    
+    if [ $status -eq 0 ]; then
+        result="${COLOR3}OK${NC}"
+    else
+        result="${COLOR1}NO${NC}"
+        exit_code=1
+    fi
+
+    printf "[%s] %s\n" "$result" "$1"
+}
+
+main() {
+    /sbin/ethtool $INTERFACE 2>/dev/null | grep --quiet 'Link detected: yes'
+    verify "Network interface is online"
+
+    ping $GATEWAY
+    verify "Reach default gateway"
+
+    nc -zw1 $(grep nameserver /etc/resolv.conf | head -n 1 | awk '{print $2}') 53
+    verify "Reach DNS server"
+
+    ping $INTERNET
+    verify "Reach internet"
+
+    getent hosts "$DOMAIN" >/dev/null
+    verify "Resolve domain names"
+
+    nc -zw1 "$DOMAIN" 443
+    verify "Reach website"
+
+    curl -s "https://$DOMAIN" >/dev/null
+    verify "Download securely"
+}
+
+main
+echo
+info
+exit $exit_code
