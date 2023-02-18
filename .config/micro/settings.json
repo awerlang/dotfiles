@@ -1,5 +1,5 @@
 {
-    "colorscheme": "zenburn",
+    "colorscheme": "simple",
     "diffgutter": true,
     "pluginchannels": [
         "https://raw.githubusercontent.com/micro-editor/plugin-channel/master/channel.json"
