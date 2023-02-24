@@ -6,3 +6,7 @@ tmp=$(mktemp test-XXXX.wav)
 pw-record -v --media-role=Communication "$tmp" || true
 echo
 pw-play --media-role=Communication "$tmp"
+
+read -r -n 1 -p "> Keep record (\"$tmp\") (y/N)? "
+echo
+[[ $REPLY =~ ^[Yy]$ ]] || rm -v "$tmp"
