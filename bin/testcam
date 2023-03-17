@@ -1,0 +1,40 @@
+#!/bin/bash
+set -o errexit -o nounset -o noclobber -o pipefail
+
+timeout() {
+    command timeout --preserve-status 12s "$@" || { code=$?; test $code -eq 143 || exit $code; }
+}
+
+main() {
+    local height=1080
+    local type=${1-}
+    local tmp=
+
+    case "$type" in
+        "gst")
+            tmp=$(mktemp --tmpdir test-XXXX.mkv)
+            # timeout gst-launch-1.0 -e v4l2src ! video/x-h264,height=$height ! vaapih264dec ! videoconvert ! autovideosink
+            timeout gst-launch-1.0 -e v4l2src ! image/jpeg,height=$height ! jpegdec ! tee name=t \
+                t. ! queue ! autovideosink \
+                t. ! queue ! theoraenc ! mkv. \
+                autoaudiosrc ! queue ! audioconvert ! mkv. \
+                matroskamux name=mkv ! filesink location="$tmp" sync=false
+            ;;
+
+        "ffmpeg")
+            tmp=$(mktemp --tmpdir test-XXXX.mp4)
+            ffmpeg -f pulse -ac 2 -i default \
+                   -f video4linux2 -re -s 1920x1080 -framerate 30 -input_format h264 -i /dev/video0 -vcodec copy -g 80 -keyint_min 15 -f flv -tune film -strict normal \
+                   -t 10 \
+                   "$tmp"
+            ;;
+        *)
+            echo "USAGE: testcam gst"
+            echo "       testcam ffmpeg"
+            exit 1
+    esac
+
+    mpv "$tmp"
+}
+
+main "$@"
