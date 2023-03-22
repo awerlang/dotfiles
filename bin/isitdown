@@ -10,15 +10,24 @@
 # * configuration/error handling
 # * exit codes
 # * clear DNS cache
-# * external DNS
 # * details for each step
 # * quality stats: latency, error rate
 # * help
+
+export LANG=C
 
 DOMAIN=${1-google.com}
 INTERNET=8.8.8.8
 INTERFACE=$(ip route | awk '/default/ { print $5 }')
 GATEWAY=$(ip route | awk '/default/ { print $3 }')
+STUB=127.0.0.53
+DNS=$(grep nameserver /etc/resolv.conf | head -n 1 | awk '{print $2}')
+if test "$DNS" = "$STUB"; then
+    DNS=$(resolvectl status $INTERFACE | awk -F ": " '/Current DNS Server/ {print $2}')
+    resolvectl flush-caches
+else
+    STUB=
+fi
 
 if [[ -n $TERM ]] && [[ $TERM != "dumb" ]]; then
     COLOR1=$(tput setaf 3)
@@ -35,7 +44,7 @@ fi
 exit_code=0
 
 ping() {
-    command ping -q -c 1 $1 >/dev/null
+    command ping -q -c 1 -w 1 $1 >/dev/null
 }
 
 local_ip() {
@@ -44,6 +53,8 @@ local_ip() {
 
 info() {
     printf "Default gateway\t\t%s\n" $GATEWAY
+    printf "Stub DNS resolver\t%s\n" $STUB
+    printf "DNS resolver\t\t%s\n" $DNS
     printf "Local IPv4 address\t%s\n" $(local_ip inet)
     printf "Local IPv6 address\t%s\n" $(local_ip inet6)
     printf "External IPv4 address\t%s\n" $(dig @resolver1.opendns.com -4 myip.opendns.com A +short)
@@ -53,7 +64,7 @@ info() {
 verify() {
     local status=$?
     local result
-    
+
     if [ $status -eq 0 ]; then
         result="${COLOR3}OK${NC}"
     else
@@ -71,19 +82,24 @@ main() {
     ping $GATEWAY
     verify "Reach default gateway"
 
-    nc -zw1 $(grep nameserver /etc/resolv.conf | head -n 1 | awk '{print $2}') 53
+    if test "$STUB"; then
+        nc -zw1 $STUB 53
+        verify "Reach stub DNS resolver"
+    fi
+
+    nc -zw1 $DNS 53
     verify "Reach DNS server"
 
     ping $INTERNET
     verify "Reach internet"
 
-    getent hosts "$DOMAIN" >/dev/null
+    timeout --preserve-status 1s getent hosts "$DOMAIN" >/dev/null
     verify "Resolve domain names"
 
     nc -zw1 "$DOMAIN" 443
     verify "Reach website"
 
-    curl -s "https://$DOMAIN" >/dev/null
+    curl -s -m 10 "https://$DOMAIN" >/dev/null
     verify "Download securely"
 }
 
