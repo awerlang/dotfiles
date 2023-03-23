@@ -36,6 +36,7 @@
 ##      There is NO WARRANTY, to the extent permitted by law.
 ##
 #####################################################################################################
+#shellcheck disable=SC2317
 
 #set -x
 set -o nounset -o errexit -o pipefail

@@ -23,7 +23,7 @@ GATEWAY=$(ip route | awk '/default/ { print $3 }')
 STUB=127.0.0.53
 DNS=$(grep nameserver /etc/resolv.conf | head -n 1 | awk '{print $2}')
 if test "$DNS" = "$STUB"; then
-    DNS=$(resolvectl status $INTERFACE | awk -F ": " '/Current DNS Server/ {print $2}')
+    DNS=$(resolvectl status "$INTERFACE" | awk -F ": " '/Current DNS Server/ {print $2}')
     resolvectl flush-caches
 else
     STUB=
@@ -44,21 +44,21 @@ fi
 exit_code=0
 
 ping() {
-    command ping -q -c 1 -w 1 $1 >/dev/null
+    command ping -q -c 1 -w 1 "$1" >/dev/null
 }
 
 local_ip() {
-    ip address show $INTERFACE | grep -w "$1" | awk '/global/ {print $2}'
+    ip address show "$INTERFACE" | grep -w "$1" | awk '/global/ {print $2}'
 }
 
 info() {
-    printf "Default gateway\t\t%s\n" $GATEWAY
-    printf "Stub DNS resolver\t%s\n" $STUB
-    printf "DNS resolver\t\t%s\n" $DNS
-    printf "Local IPv4 address\t%s\n" $(local_ip inet)
-    printf "Local IPv6 address\t%s\n" $(local_ip inet6)
-    printf "External IPv4 address\t%s\n" $(dig @resolver1.opendns.com -4 myip.opendns.com A +short)
-    printf "External IPv6 address\t%s\n" $(dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short)
+    printf "Default gateway\t\t%s\n" "$GATEWAY"
+    printf "Stub DNS resolver\t%s\n" "$STUB"
+    printf "DNS resolver\t\t%s\n" "$DNS"
+    printf "Local IPv4 address\t%s\n" "$(local_ip inet)"
+    printf "Local IPv6 address\t%s\n" "$(local_ip inet6)"
+    printf "External IPv4 address\t%s\n" "$(dig @resolver1.opendns.com -4 myip.opendns.com A +short)"
+    printf "External IPv6 address\t%s\n" "$(dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short)"
 }
 
 verify() {
@@ -76,21 +76,21 @@ verify() {
 }
 
 main() {
-    /sbin/ethtool $INTERFACE 2>/dev/null | grep --quiet 'Link detected: yes'
+    /sbin/ethtool "$INTERFACE" 2>/dev/null | grep --quiet 'Link detected: yes'
     verify "Network interface is online"
 
-    ping $GATEWAY
+    ping "$GATEWAY"
     verify "Reach default gateway"
 
     if test "$STUB"; then
-        nc -zw1 $STUB 53
+        nc -zw1 "$STUB" 53
         verify "Reach stub DNS resolver"
     fi
 
-    nc -zw1 $DNS 53
+    nc -zw1 "$DNS" 53
     verify "Reach DNS server"
 
-    ping $INTERNET
+    ping "$INTERNET"
     verify "Reach internet"
 
     timeout --preserve-status 1s getent hosts "$DOMAIN" >/dev/null
