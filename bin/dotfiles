@@ -98,15 +98,20 @@ install_deps() {
                                 fira-code-fonts \
                                 fzf \
                                 git-delta \
+                                gstreamer-plugins-ugly \
+                                gstreamer-plugins-vaapi \
+                                gstreamer-utils \
                                 jq \
                                 libnotify-tools \
                                 libxml2-tools \
+                                make \
                                 meld \
                                 micro-editor \
                                 podman \
                                 powerline \
                                 python3-pip \
                                 ripgrep \
+                                rpmconf \
                                 ShellCheck \
                                 tmux \
                                 tmux-powerline \
