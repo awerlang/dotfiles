@@ -10,11 +10,16 @@ main() {
     local type=${1-}
     local tmp=
 
+    echo "Pick a device to record video:"
+    select device in $(ls /dev/video*); do
+        break;
+    done
+
     case "$type" in
         "gst")
             tmp=$(mktemp --tmpdir test-XXXX.mkv)
             # timeout gst-launch-1.0 -e v4l2src ! video/x-h264,height=$height ! vaapih264dec ! videoconvert ! autovideosink
-            timeout gst-launch-1.0 -e v4l2src ! image/jpeg,height=$height ! jpegdec ! tee name=t \
+            timeout gst-launch-1.0 -e v4l2src device=$device ! image/jpeg,height=$height ! jpegdec ! tee name=t \
                 t. ! queue ! autovideosink \
                 t. ! queue ! theoraenc ! mkv. \
                 autoaudiosrc ! queue ! audioconvert ! mkv. \
