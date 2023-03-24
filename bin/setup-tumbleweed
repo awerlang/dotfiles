@@ -182,7 +182,6 @@ install_packages() {
                     "pipewire-pulseaudio"
                     "pipewire-tools"
                     "systemd-network"
-                    "virt-manager"
                     "udisks2"
                     "wireplumber"
                     "wireplumber-audio"
