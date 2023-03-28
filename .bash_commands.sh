@@ -21,6 +21,8 @@ systemctl list-dependencies --reverse # services: depend upon
 systemd-analyze                 # startup
 systemd-analyze critical-chain  # startup
 systemd-analyze blame           # startup
+journalctl --list-boots             # boots
+last -Fxn30 shutdown reboot | tac   # crashes
 
 rpm -q --triggers PACKAGE       # list triggers for package
 rpm -q -qf FILE                 # which package provides file
