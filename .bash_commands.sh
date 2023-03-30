@@ -106,7 +106,7 @@ iotop -oPa      # system: I/O
 sudo lspci -vv  # system: pci -- verbose
 sudo lspci -tv  # system: pci
 sudo lsinitrd   # system: initramfs, initrd
-sudo mkinitrd   # system: initramfs, initrd
+sudo dracut -f --regenerate-all  # system: initramfs, initrd
 sudo efibootmgr -v   # system: efi
 sudo grub2-mkconfig -o /boot/grub2/grub.cfg # generate grub menu
 sudo swapon --all
