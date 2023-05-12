@@ -24,6 +24,7 @@ systemd-analyze blame           # startup
 journalctl --list-boots             # boots
 last -Fxn30 shutdown reboot | tac   # crashes
 
+sudo rpm -Va --nomode --nocaps --nomtime --nouser --nogroup     # modified configuration files
 rpm -q --triggers PACKAGE       # list triggers for package
 rpm -q -qf FILE                 # which package provides file
 rpm -q -ql PACKAGE              # list files installed by package
