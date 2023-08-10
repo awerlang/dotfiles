@@ -29,5 +29,6 @@
     "workbench.colorTheme": "Solarized Dark",
     "[typescript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
-    }
+    },
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }

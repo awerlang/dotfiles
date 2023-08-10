@@ -1,6 +1,6 @@
 include "/usr/share/nano/*.nanorc"
 
-set tempfile
+set saveonexit
 set mouse
 set linenumbers
 set autoindent
@@ -16,7 +16,7 @@ bind ^S writeout main
 bind ^W exit main
 bind F1 help main
 
-bind ^L curpos main
+bind ^L location main
 bind ^J gotoline main
 
 bind ^Space mark main
