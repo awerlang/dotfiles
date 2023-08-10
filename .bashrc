@@ -152,4 +152,6 @@ welcome
 
 set -o noclobber -o pipefail
 
+source ~/.config/broot/launcher/bash/br
+
 return
