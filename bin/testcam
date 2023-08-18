@@ -27,7 +27,7 @@ main() {
             ;;
 
         "ffmpeg")
-            tmp=$(mktemp --tmpdir test-XXXX.mp4)
+            tmp=$(mktemp --dry-run --tmpdir test-XXXX.mp4)
             ffmpeg -f pulse -ac 2 -i default \
                    -f video4linux2 -re -s 1920x1080 -framerate 30 -input_format h264 -i /dev/video0 -vcodec copy -g 80 -keyint_min 15 -f flv -tune film -strict normal \
                    -t 10 \
