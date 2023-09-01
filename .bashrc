@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # There are 3 different types of shells in bash: the login shell, normal shell
 # and interactive shell. Login shells read ~/.profile and interactive shells
 # read ~/.bashrc; in our setup, /etc/profile sources ~/.bashrc - thus all
@@ -27,16 +28,22 @@ for option in autocd dotglob extglob; do
     shopt -s $option &>/dev/null
 done
 
-source /usr/share/bash-completion/completions/git
-__git_complete dotfiles __git_main
+if command -v git >/dev/null; then
+    source /usr/share/bash-completion/completions/git
+    __git_complete dotfiles __git_main
+    alias g='git'
+    __git_complete g __git_main
+fi
 complete -o default -o nospace -F _zypper zypper-download
 
 # git repository status for bash prompt
 
-powerline-daemon -q
-POWERLINE_BASH_CONTINUATION=1
-POWERLINE_BASH_SELECT=1
-source /usr/share/powerline/bash/powerline.sh
+if command -v powerline-daemon >/dev/null; then
+    powerline-daemon -q
+    POWERLINE_BASH_CONTINUATION=1
+    POWERLINE_BASH_SELECT=1
+    source /usr/share/powerline/bash/powerline.sh
+fi
 
 # shell helpers
 
@@ -97,9 +104,6 @@ alias backup='sudo ~/bin/backup'
 
 alias filefrag='/usr/sbin/filefrag'
 
-alias g='git'
-__git_complete g __git_main
-
 diff() {
     command diff -u "$@" | delta
 }
@@ -147,7 +151,9 @@ complete -F _editrc_completions editrc
 
 # Welcome messages
 
-welcome
+if systemctl is-system-running >/dev/null; then
+    welcome
+fi
 
 # Default options for interactive mode
 
