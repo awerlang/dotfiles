@@ -69,7 +69,7 @@ alias rpmkeys='rpm -q gpg-pubkey --qf "%{name}-%{version}-%{release} --> %{summa
 alias clip='xclip -selection clipboard'
 alias newpasswd='read -r -n 16 pass < <(LC_ALL=C tr -dc "[:graph:]" < /dev/urandom) && echo -n $pass'
 alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public key copied to clipboard."'
-alias json='python -m json.tool <'
+alias json='python3 -m json.tool <'
 alias up='TERM=xterm up'
 alias decolorize=$'sed \'s/\x1b\[[0-9;]*m//g\''
 alias shlint='ls bin/* | entr -s "shellcheck --external-sources --source-path=$HOME --color=always --exclude=SC2016 bin/*"'
@@ -80,6 +80,7 @@ alias ipv6_on='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=0'
 alias ipv6_off='sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1'
 alias lsint='watch -d -n 5 cat /proc/interrupts'
 alias optirun="env __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia LIBVA_DRIVER_NAME=nvidia"
+alias reset_webcam='sudo modprobe -r uvcvideo && sudo modprobe uvcvideo'
 
 # sudo
 
