@@ -2,16 +2,20 @@
 
 command="$1"
 vpn=${2-work}
+service="openvpn@$vpn.service"
 
 case $command in
     up)
-        sudo systemctl start "openvpn@$vpn.service"
-        while ! ip link show tun0 &> /dev/null; do sleep 1; done
+        sudo systemctl start "$service"
+        while ! ip link show tun0 &> /dev/null; do
+            sleep 1
+            systemctl is-active "$service" >/dev/null || exit 1
+        done
         resolvectl query google.com >/dev/null
         resolvectl status tun0
         ;;
     down)
-        sudo systemctl stop "openvpn@$vpn.service"
+        sudo systemctl stop "$service"
         while ip link show tun0 &> /dev/null; do sleep 1; done
         ;;
     --help)
