@@ -315,18 +315,24 @@ sudoers() {
     confirm "Allow selected commands to run without asking the root password" || return
 
     sudo SUDO_EDITOR=tee visudo -f "/etc/sudoers.d/50-wheel" >/dev/null <<EOF
-Defaults    editor=/usr/bin/nano:/usr/bin/vim
+Defaults:%wheel     !targetpw
 
-Cmnd_Alias  ADMIN = /usr/bin/etckeeper, \\
+Cmnd_Alias  ADMIN = /usr/sbin/etckeeper, \\
                     /usr/bin/journalctl, \\
                     /usr/bin/snapper, \\
                     /usr/bin/systemctl start openvpn@work.service, \\
                     /usr/bin/systemctl stop openvpn@work.service, \\
+                    /usr/bin/systemctl start docker.service, \\
+                    /usr/bin/systemctl stop docker.service, \\
+                    /usr/bin/systemctl start pcscd.service, \\
+                    /usr/bin/systemctl stop pcscd.service, \\
                     /usr/bin/zypper, \\
+                    /usr/sbin/fatrace, \\
                     /usr/sbin/iotop, \\
                     /usr/sbin/rpmconf, \\
                     /usr/sbin/rpmconfigcheck
 
+%wheel      ALL = (root) ALL
 %wheel      ALL = (root) NOPASSWD: ADMIN
 EOF
 }
