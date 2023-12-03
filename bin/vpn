@@ -1,27 +1,50 @@
 #!/bin/bash
 
 command="$1"
-vpn=${2-work}
-service="openvpn@$vpn.service"
+vpn="$2"
+if [ "$vpn" == "" ]; then
+    service="openvpn.target"
+else
+    service="openvpn@$vpn.service"
+fi
+
+tun_exists() {
+    ip link show tun0 &> /dev/null
+}
+
+wait_until_connected() {
+    while ! tun_exists; do
+        sleep 1
+        systemctl is-active "$service" >/dev/null || exit 1
+    done
+    resolvectl query google.com >/dev/null
+    resolvectl status tun0
+}
 
 case $command in
     up)
         sudo systemctl start "$service"
-        while ! ip link show tun0 &> /dev/null; do
-            sleep 1
-            systemctl is-active "$service" >/dev/null || exit 1
-        done
-        resolvectl query google.com >/dev/null
-        resolvectl status tun0
+        wait_until_connected
         ;;
     down)
         sudo systemctl stop "$service"
-        while ip link show tun0 &> /dev/null; do sleep 1; done
+        while tun_exists; do sleep 1; done
+        ;;
+    monitor)
+        sudo journalctl -f --since=now -u "$service"
+        ;;
+    wait)
+        systemctl status "$service" >/dev/null && wait_until_connected
         ;;
     --help)
-        echo "vpn               Query VPN status"
-        echo "vpn up [work]     Activate VPN"
-        echo "vpn down [work]   Deactivate VPN"
+        echo "vpn                   Query VPN status"
+        echo "vpn up [my-vpn]       Activate default or named VPN"
+        echo "vpn down [my-vpn      Deactivate default or named VPN"
+        echo "vpn monitor [my-vpn]  Monitor default or named VPN logs"
+        echo "vpn wait [my-vpn]     Wait for default or named VPN to connect"
+        echo "vpn --help            Display this screen"
+        echo ""
+        echo "Default VPN is enabled with 'systemctl enable openvpn@my-vpn.service'"
         ;;
     *)
         resolvectl status tun0

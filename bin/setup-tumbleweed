@@ -322,6 +322,8 @@ Cmnd_Alias  ADMIN = /usr/sbin/etckeeper, \\
                     /usr/bin/snapper, \\
                     /usr/bin/systemctl start openvpn@work.service, \\
                     /usr/bin/systemctl stop openvpn@work.service, \\
+                    /usr/bin/systemctl start openvpn.target, \\
+                    /usr/bin/systemctl stop openvpn.target, \\
                     /usr/bin/systemctl start docker.service, \\
                     /usr/bin/systemctl stop docker.service, \\
                     /usr/bin/systemctl start pcscd.service, \\

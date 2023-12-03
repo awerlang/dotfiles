@@ -45,7 +45,7 @@ class App:
     def menu(self):
         menu = gtk.Menu()
 
-        activate_cmd = gtk.MenuItem(label='Work VPN')
+        activate_cmd = gtk.MenuItem(label='Default VPN')
         activate_cmd.connect('activate', self.connect)
         menu.append(activate_cmd)
         self.activate_cmd = activate_cmd;
@@ -68,21 +68,21 @@ class App:
         gtk.main_quit()
 
     def start_monitor(self):
-        def update_progess():
+        def update_progress():
             self.update_status()
             return False
 
-        def example_target():
-            monitor = subprocess.Popen(["ip", "monitor", "link"], stdout=subprocess.PIPE)
+        def execute():
+            monitor = subprocess.Popen(["vpn", "monitor"], stdout=subprocess.PIPE)
             for line in iter(monitor.stdout.readline, b""):
-                GLib.idle_add(update_progess)
+                GLib.idle_add(update_progress)
 
-        thread = threading.Thread(target=example_target)
+        thread = threading.Thread(target=execute)
         thread.daemon = True
         thread.start()
 
     def is_connected_to_vpn(self):
-        return shell("ip link show tun0")
+        return shell("vpn wait")
 
     def update_status(self):
         if self.is_connected_to_vpn():
@@ -98,11 +98,9 @@ class App:
 
     def connect(self, _):
         shell("vpn up")
-        self.update_status()
 
     def disconnect(self, _):
         shell("vpn down")
-        self.update_status()
 
 if __name__ == "__main__":
     App().main()
