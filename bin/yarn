@@ -1,0 +1,70 @@
+#!/bin/bash
+
+directory=
+verbose=
+
+while [ -n "$1" ]; do
+    case "$1" in
+        --cwd)
+            shift
+            directory="$1"
+            [ -n "$directory" ] && [ -d "$directory" ] || exit 1
+            shift
+            ;;
+
+        --verbose)
+            verbose=1
+            shift
+            ;;
+
+        *)
+            break
+            ;;
+    esac
+done
+
+case "$1" in
+    add | install | update | upgrade | why)
+        echo Unsupported command: "$1" >&2
+        exit 2
+        ;;
+esac
+
+if [ "$1" == "run" ]; then
+    shift
+    if [ -z "$1" ]; then
+        jq -r '.scripts | keys[] as $k | "- \($k) \n   \(.[$k])"' package.json
+    fi
+fi 
+
+script=$1
+[ -n "$script" ] || exit 3
+shift
+command=$(jq -r ".scripts.\"$script\"" package.json)
+
+if [ -n "$directory" ]; then
+    cd "$directory" || exit 1
+fi
+
+function execute() {
+    if [ -n "$verbose" ]; then
+        echo "\$ ${@}"
+    fi
+    env "${@}"
+}
+
+case "$command" in
+    null)
+        case "$script" in
+            env)
+                echo "<TODO> Running this command will list environment variables available to the scripts at runtime."
+                ;;
+            *)
+                execute $script "${@}"
+                ;;
+        esac
+        ;;
+    *)
+        execute $command "${@}"
+        ;;
+esac
