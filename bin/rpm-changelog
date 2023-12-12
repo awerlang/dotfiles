@@ -6,10 +6,12 @@ import itertools
 import os
 import re
 import rpm
+import subprocess
 import sys
 
 pkg_cache_dir = sys.argv[1] if len(sys.argv) >= 2 else '/var/cache/zypp/packages'
 pkg_sep = '=' * 70
+auto_installed = subprocess.getoutput("grep -v '^#' /var/lib/zypp/AutoInstalled").splitlines()
 
 class Color:
     no_color = u"\u001b[0m"
@@ -162,6 +164,15 @@ def get_string_sort_key(s):
 
     return re.sub(r'[^\w\s]', '', s).lower()
 
+def by_priority(s):
+    if s in auto_installed:
+        return 1
+    else:
+        return 0
+
+def by_sourcerpm(s):
+    return int(not s[0].sourcerpm.startswith(s[0].name))
+
 def print_summary():
     print(color1 >> 'Δ Summary')
     print(f'  * New: {len(new_packages)}')
@@ -266,7 +277,7 @@ def get_report():
             print(f'{count: >6}', name)
 
     contributors = []
-    for (new, existing) in sorted(packages, key=lambda x: (int(not x[0].sourcerpm.startswith(x[0].name)), get_string_sort_key(x[0].name))):
+    for (new, existing) in sorted(packages, key=lambda x: (by_priority(x[0].name), by_sourcerpm(x), get_string_sort_key(x[0].name))):
         if existing:
             updates.append(new)
             if new.sourcerpm not in sources:
