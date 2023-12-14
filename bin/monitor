@@ -1,4 +1,9 @@
 #!/bin/sh
+if [ -z "$TMUX" ]; then
+  echo "Must run inside a tmux session"
+  exit 1
+fi
+
 tmux rename-session monitor
 tmux send-keys 'sudo iotop -oPa -d 10' C-m
 tmux split-window -h 'sudo ~/bin/filetop -Cr 10 -s wbytes 60'
