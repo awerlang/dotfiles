@@ -44,5 +44,7 @@ for WORKSPACE_PATH in $HOME/src/*/workspace/bin; do
 done
 unset WORKSPACE_PATH
 
+export NO_AT_BRIDGE=1
+export MESA_DEBUG=silent
 export QT_LOGGING_RULES='*=false'
 export PYTHONPATH="$(python3 -m site --user-site)"
