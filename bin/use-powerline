@@ -1,0 +1,7 @@
+#!/bin/bash
+
+if ! pgrep -f powerline-daemon; then
+    if command -v powerline-daemon; then
+        powerline-daemon
+    fi
+fi >/dev/null
