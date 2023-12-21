@@ -9,5 +9,5 @@ tmux send-keys 'sudo iotop -oPa -d 10' C-m
 tmux split-window -h 'sudo ~/bin/filetop -Cr 10 -s wbytes 60'
 tmux split-window -v 'cd /mnt; sudo fatrace --current-mount -f W'
 tmux select-pane -t 1
-tmux split-window -v 'watch -n 10 -- iostat -m'
+tmux split-window -v 'watch -c -n 10 -- S_COLORS=always iostat -m'
 tmux split-window -v 'dstat --vmstat 10'
