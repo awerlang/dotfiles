@@ -48,7 +48,7 @@ fi
 
 function execute() {
     if [ -n "$verbose" ]; then
-        echo "\$ ${@}"
+        echo "\$" "${@}"
     fi
     env "${@}"
 }
@@ -60,7 +60,7 @@ case "$command" in
                 echo "<TODO> Running this command will list environment variables available to the scripts at runtime."
                 ;;
             *)
-                execute $script "${@}"
+                execute "$(command -v $script)" $(echo "${@}" | tr '"' "'")
                 ;;
         esac
         ;;
