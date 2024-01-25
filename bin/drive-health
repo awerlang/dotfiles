@@ -27,6 +27,12 @@ run() {
     sudo btrfs scrub start -BR /
     printf "\n"
 
+    printf "${COLOR1}> Defragment RPM databases${NC}\n\n"
+    EXTENT_SIZE="32M"
+    RPMDIR=$(rpm --eval "%_dbpath")
+    sudo btrfs filesystem defragment -v -f -r -t "$EXTENT_SIZE" "$RPMDIR"
+    printf "\n"
+
     printf "${COLOR1}> Compacting data blocks${NC}\n\n"
     sudo btrfs balance start --verbose -dusage=5 /
     printf "\n"
