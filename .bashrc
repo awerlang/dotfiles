@@ -151,7 +151,7 @@ complete -F _editrc_completions editrc
 
 # Welcome messages
 
-if pidof systemd >/dev/null; then
+if { command -v systemctl && systemctl is-system-running; } >/dev/null; then
     welcome
 fi
 
