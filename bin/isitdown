@@ -57,8 +57,8 @@ info() {
     printf "DNS resolver\t\t%s\n" "$DNS"
     printf "Local IPv4 address\t%s\n" "$(local_ip inet)"
     printf "Local IPv6 address\t%s\n" "$(local_ip inet6)"
-    printf "External IPv4 address\t%s\n" "$(dig @resolver1.opendns.com -4 myip.opendns.com A +short)"
-    printf "External IPv6 address\t%s\n" "$(dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short)"
+    printf "External IPv4 address\t%s\n" "$(timeout 3s dig @resolver1.opendns.com -4 myip.opendns.com A +short)"
+    printf "External IPv6 address\t%s\n" "$(timeout 3s dig @resolver1.opendns.com -6 myip.opendns.com AAAA +short)"
 }
 
 verify() {
@@ -96,7 +96,7 @@ main() {
     timeout --preserve-status 1s getent hosts "$DOMAIN" >/dev/null
     verify "Resolve domain names"
 
-    nc -zw1 "$DOMAIN" 443
+    timeout --preserve-status 5s nc -zw1 "$DOMAIN" 443
     verify "Reach website"
 
     curl -s -m 10 "https://$DOMAIN" >/dev/null
