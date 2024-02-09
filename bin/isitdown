@@ -22,7 +22,7 @@ INTERFACE=$(ip route | awk '/default/ { print $5 }')
 GATEWAY=$(ip route | awk '/default/ { print $3 }')
 STUB=127.0.0.53
 DNS=$(grep nameserver /etc/resolv.conf | head -n 1 | awk '{print $2}')
-if test "$DNS" = "$STUB"; then
+if test -n "$INTERFACE" && test "$DNS" = "$STUB"; then
     DNS=$(resolvectl status "$INTERFACE" | awk -F ": " '/Current DNS Server/ {print $2}')
     resolvectl flush-caches
 else
