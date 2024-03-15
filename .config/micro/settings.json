@@ -1,6 +1,7 @@
 {
     "colorscheme": "simple",
     "diffgutter": true,
+    "indentchar": "space",
     "pluginchannels": [
         "https://raw.githubusercontent.com/micro-editor/plugin-channel/master/channel.json"
     ],
