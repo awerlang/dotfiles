@@ -48,10 +48,14 @@ def get_package_info_from_database(ts, package):
     return hdr
 
 def get_package_info_from_file(ts, filename):
-    fd = os.open(filename, os.O_RDONLY)
-    h = ts.hdrFromFdno(fd)
-    os.close(fd)
-    return h
+    try:
+        fd = os.open(filename, os.O_RDONLY)
+        h = ts.hdrFromFdno(fd)
+        os.close(fd)
+        return h
+    except BaseException as error:
+        print('An exception occurred opening {}: {}'.format(filename, error))
+        raise
 
 def get_changelog(header):
     times = header[rpm.RPMTAG_CHANGELOGTIME]
