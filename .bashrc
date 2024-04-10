@@ -62,6 +62,7 @@ alias count='sort | uniq -c | sort -hr'
 alias watch='watch --color --differences'
 alias uniqall='awk "!_[\$0]++"'
 alias uncomment='grep -v "^#"'
+alias reset='tput reset'
 
 # rpm/zypper
 
