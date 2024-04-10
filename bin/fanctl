@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -euo pipefail
+
+readonly TEMP_INPUT=/sys/class/hwmon/hwmon2/temp1_input
+readonly PWM_OUTPUT=/sys/class/hwmon/hwmon2/pwm1
+readonly INTERVAL=10
+readonly ITERATIONS=1
+readonly MINTEMP=55
+readonly MAXTEMP=70
+readonly MINSTART=128
+readonly MINSTOP=128
+readonly MINPWM=0
+readonly MAXPWM=255
+readonly MINSTEPDOWN=8
+
+sleep_interval=0
+
+get_reading() {
+    local total average
+    total=0
+    for i in $(seq $ITERATIONS); do
+        local reading
+        read -r reading < $TEMP_INPUT
+        total=$(( total + reading / 1000 ))
+        sleep $sleep_interval
+    done
+    sleep_interval=$INTERVAL
+
+    average=$(( total / ITERATIONS ))
+    echo $average
+}
+
+get_target() {
+    local average target previous_average
+    previous_average=0
+    while true; do
+        average=$(get_reading)
+        if (( average > MAXTEMP )); then
+            target=$MAXPWM
+        elif (( average >= MINTEMP )); then
+            target=$MINSTART
+        else
+            target=$MINPWM
+        fi
+        if (( average > previous_average)) || (( average < previous_average - MINSTEPDOWN )); then
+            echo "$average" "$target"
+            previous_average=$average
+        else
+            previous_average=$(( average + MINSTEPDOWN ))
+        fi
+    done
+}
+
+write() {
+    local target
+    target=$1
+    echo "$target" > $PWM_OUTPUT
+}
+
+main() {
+    local now last_date diff
+    last_date=$(date +%s)
+    get_target | stdbuf -oL -eL uniq -f 1 | while read -r temp target; do
+        now=$(date +%s)
+        diff=$(( now - last_date ))
+        printf "%s +%.3d:%.2d temp=%s fan set to %d\n" "$(date '+%b %d %H:%M:%S')" "$(( diff / 60 ))" "$(( diff % 60 ))" "$temp" "$target"
+        write "$target"
+        last_date=$now
+    done
+}
+
+main
