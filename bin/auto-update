@@ -80,7 +80,7 @@ summary() {
 refresh() {
     task "Refreshing Repositories"
 
-    sudo zypper refresh >/dev/null || exit 1
+    sudo zypper --non-interactive refresh >/dev/null || exit 1
 }
 
 vscode() {
