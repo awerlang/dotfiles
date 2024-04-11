@@ -10,39 +10,53 @@ readonly MINTEMP=55
 readonly MAXTEMP=70
 readonly MINSTART=128
 readonly MINSTOP=128
-readonly MINPWM=0
+readonly MINPWM=128
 readonly MAXPWM=255
 readonly MINSTEPDOWN=8
 
-sleep_interval=0
+get_reading_imm() {
+    local reading
+    read -r reading < $TEMP_INPUT
+    echo $(( reading / 1000 ))
+}
 
-get_reading() {
+get_reading_avg() {
     local total average
     total=0
     for i in $(seq $ITERATIONS); do
         local reading
         read -r reading < $TEMP_INPUT
         total=$(( total + reading / 1000 ))
-        sleep $sleep_interval
+        sleep $INTERVAL
     done
-    sleep_interval=$INTERVAL
 
     average=$(( total / ITERATIONS ))
     echo $average
 }
 
 get_target() {
+    local target average=$1
+    if (( average > MAXTEMP )); then
+        target=$MAXPWM
+    elif (( average >= MINTEMP )); then
+        target=$MINSTART
+    else
+        target=$MINPWM
+    fi
+    echo $target
+}
+
+next_target() {
     local average target previous_average
-    previous_average=0
+
+    average=$(get_reading_imm)
+    target=$(get_target "$average")
+    echo "$average" "$target"
+    
+    previous_average=$average
     while true; do
-        average=$(get_reading)
-        if (( average > MAXTEMP )); then
-            target=$MAXPWM
-        elif (( average >= MINTEMP )); then
-            target=$MINSTART
-        else
-            target=$MINPWM
-        fi
+        average=$(get_reading_avg)
+        target=$(get_target "$average")
         if (( average > previous_average)) || (( average < previous_average - MINSTEPDOWN )); then
             echo "$average" "$target"
             previous_average=$average
@@ -61,7 +75,7 @@ write() {
 main() {
     local now last_date diff
     last_date=$(date +%s)
-    get_target | stdbuf -oL -eL uniq -f 1 | while read -r temp target; do
+    next_target | stdbuf -oL -eL uniq -f 1 | while read -r temp target; do
         now=$(date +%s)
         diff=$(( now - last_date ))
         printf "%s +%.3d:%.2d temp=%s fan set to %d\n" "$(date '+%b %d %H:%M:%S')" "$(( diff / 60 ))" "$(( diff % 60 ))" "$temp" "$target"
