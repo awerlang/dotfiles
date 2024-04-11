@@ -3,12 +3,14 @@
 set -o nounset -o noclobber -o pipefail
 
 PKG_CACHE_DIR="$HOME/.cache/zypp/packages"
+UPDATES_DIR="$HOME/.local/share/My/updates"
 
 zypper() {
     sudo 'zypper' --no-refresh --pkg-cache-dir "$PKG_CACHE_DIR" "$@"
 }
 
-rpm-changelog "$PKG_CACHE_DIR" | LESS='-e -M -R +Gg/Δ' ${PAGER-less}
+CHANGELOG=$(mktemp)
+rpm-changelog "$PKG_CACHE_DIR" | tee "$CHANGELOG" | LESS='-e -M -R +Gg/Δ' ${PAGER-less}
 
 if which etckeeper >/dev/null && sudo etckeeper unclean; then
     echo "There are uncommited changes in /etc, please review."
@@ -16,6 +18,8 @@ if which etckeeper >/dev/null && sudo etckeeper unclean; then
 fi
 
 if zypper dup --no-allow-arch-change --details --auto-agree-with-licenses; then
+    test -s "$CHANGELOG" && mkdir -p "$UPDATES_DIR" && mv "$CHANGELOG" "${UPDATES_DIR}/$(date +%Y-%m-%dT%H-%M-%S)"
+
     zypper-download -z inr --no-allow-arch-change
     mapfile -t unneeded < <(zypper --quiet pa --unneeded | awk '$1 == "i" { print $5 "-" $7 }')
     (( ${#unneeded[@]} )) && zypper --quiet rm --clean-deps --details "${unneeded[@]}"
