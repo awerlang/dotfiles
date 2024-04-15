@@ -192,6 +192,7 @@ install_packages() {
                     "fortune"
                     "flameshot"
                     "simplescreenrecorder"
+                    "spectacle"
                     "smplayer"
                     "tealdeer"
                     "virt-manager"

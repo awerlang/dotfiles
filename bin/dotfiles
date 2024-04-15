@@ -97,6 +97,7 @@ install_deps() {
                                 entr \
                                 fd \
                                 fira-code-fonts \
+                                fish \
                                 fzf \
                                 git-delta \
                                 gstreamer-plugins-good \
@@ -111,6 +112,7 @@ install_deps() {
                                 micro-editor \
                                 podman \
                                 powerline \
+                                powerline-go \
                                 ripgrep \
                                 rpmconf \
                                 ShellCheck \
@@ -118,6 +120,7 @@ install_deps() {
                                 tmux-powerline \
                                 unrar_wrapper \
                                 urlview \
+                                wl-clipboard \
                                 xclip
 
     local pip=$HOME/.local/bin/pip

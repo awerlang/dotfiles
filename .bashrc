@@ -14,7 +14,6 @@ fi
 export PAGER="less -RS"
 export MANPAGER="less -X -j3"
 export EDITOR='micro'
-export VISUAL='micro'
 export LESSHISTFILE=-
 export NODE_REPL_HISTORY=""
 export FZF_DEFAULT_COMMAND="fd --type file --color=always"
