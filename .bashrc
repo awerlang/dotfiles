@@ -27,14 +27,6 @@ for option in autocd dotglob extglob; do
     shopt -s $option &>/dev/null
 done
 
-if command -v git >/dev/null; then
-    source /usr/share/bash-completion/completions/git
-    __git_complete dotfiles __git_main
-    alias g='git'
-    __git_complete g __git_main
-fi
-complete -o default -o nospace -F _zypper zypper-download
-
 # shell helpers
 
 alias ..='cd ..'
@@ -141,16 +133,8 @@ _editrc_completions() {
 
 complete -F _editrc_completions editrc
 
-# Welcome messages
-
-if { command -v systemctl && systemctl is-system-running; } >/dev/null; then
-    welcome
-fi
-
 # Default options for interactive mode
 
 set -o noclobber -o pipefail
-
-source ~/.config/broot/launcher/bash/br
 
 return
