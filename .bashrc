@@ -35,14 +35,6 @@ if command -v git >/dev/null; then
 fi
 complete -o default -o nospace -F _zypper zypper-download
 
-# git repository status for bash prompt
-
-if use-powerline; then
-    POWERLINE_BASH_CONTINUATION=1
-    POWERLINE_BASH_SELECT=1
-    source /usr/share/powerline/bash/powerline.sh
-fi
-
 # shell helpers
 
 alias ..='cd ..'

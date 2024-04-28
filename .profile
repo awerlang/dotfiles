@@ -47,5 +47,4 @@ unset WORKSPACE_PATH
 export NO_AT_BRIDGE=1
 export MESA_DEBUG=silent
 export QT_LOGGING_RULES='*=false'
-export PYTHONPATH="$(python3 -m site --user-site)"
 export VISUAL='micro'

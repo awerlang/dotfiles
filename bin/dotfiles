@@ -111,23 +111,15 @@ install_deps() {
                                 meld \
                                 micro-editor \
                                 podman \
-                                powerline \
                                 powerline-go \
                                 ripgrep \
                                 rpmconf \
                                 ShellCheck \
                                 tmux \
-                                tmux-powerline \
                                 unrar_wrapper \
                                 urlview \
                                 wl-clipboard \
                                 xclip
-
-    local pip=$HOME/.local/bin/pip
-    if ! test -x "$pip"; then
-        python3 -m venv "$pip/../.."
-    fi
-    $pip --quiet install -I powerline-gitstatus==1.3.1
 
     bat cache --build
 }
