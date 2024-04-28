@@ -91,9 +91,6 @@ install_deps() {
     sudo zypper --quiet install aria2 \
                                 bat \
                                 broot \
-                                bubblewrap \
-                                buildah \
-                                crun \
                                 entr \
                                 fd \
                                 fira-code-fonts \
@@ -116,8 +113,6 @@ install_deps() {
                                 rpmconf \
                                 ShellCheck \
                                 tmux \
-                                unrar_wrapper \
-                                urlview \
                                 wl-clipboard \
                                 xclip
 
