@@ -9,7 +9,7 @@ readonly ITERATIONS=1
 readonly MINTEMP=55
 readonly MAXTEMP=70
 readonly MINSTART=128
-readonly MINSTOP=128
+# readonly MINSTOP=128
 readonly MINPWM=128
 readonly MAXPWM=255
 readonly MINSTEPDOWN=8
@@ -23,7 +23,7 @@ get_reading_imm() {
 get_reading_avg() {
     local total average
     total=0
-    for i in $(seq $ITERATIONS); do
+    seq $ITERATIONS | while read -r; do
         local reading
         read -r reading < $TEMP_INPUT
         total=$(( total + reading / 1000 ))
