@@ -5,6 +5,4 @@ if status is-interactive
 
     abbr --add g git
     abbr --add clip fish_clipboard_copy
-
-    fortune
 end
