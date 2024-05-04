@@ -312,11 +312,11 @@ def get_report():
     for (pkg, changelog) in sorted(changelogs, key=lambda x: (by_priority(x[0].name), get_string_sort_key(x[0].name))):
         if changelog:
             if not done_highlights and not pkg.name in auto_installed:
-                print(color1 >> f'HIGHLIGHTS')
+                print(color1 >> f'Δ HIGHLIGHTS')
                 print('')
                 done_highlights = True
             if not done_others and pkg.name in auto_installed:
-                print(color1 >> f'OTHERS')
+                print(color1 >> f'Δ OTHERS')
                 print('')
                 done_others = True
             print(color1 >> f'Δ {pkg.name}: {pkg.summary}')
