@@ -16,7 +16,7 @@
 
 export LANG=C
 
-DOMAIN=${1-google.com}
+DOMAIN=${1-www.google.com}
 INTERNET=8.8.8.8
 INTERFACE=$(ip route | awk '/default/ { print $5 }')
 GATEWAY=$(ip route | awk '/default/ { print $3 }')
