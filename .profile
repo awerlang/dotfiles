@@ -31,13 +31,13 @@ test -z "$PROFILEREAD" && . /etc/profile || true
 #    echo
 #fi
 
-NEW_PATHS="$HOME/src/containers/bin"
+NEW_PATHS=~/src/containers/bin
 if [[ ! :$PATH: == *:"$NEW_PATHS":* ]] ; then
     export PATH="$NEW_PATHS:$PATH"
 fi
 unset NEW_PATHS
 
-for WORKSPACE_PATH in $HOME/src/*/workspace/bin; do
+for WORKSPACE_PATH in ~/src/*/workspace/bin; do
     if [[ ! :$PATH: == *:"$WORKSPACE_PATH":* ]] ; then
         export PATH="$PATH:$WORKSPACE_PATH"
     fi
