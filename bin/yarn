@@ -1,9 +1,15 @@
 #!/bin/bash
 
-directory=
-verbose=
+set -u
 
-while [ -n "$1" ]; do
+directory=
+
+error() {
+    >&2 printf "%serror%s %s\n" "$(tput setaf 9)" "$(tput sgr0)" "$1"
+    exit "${2:-1}"
+}
+
+while [ -n "${1:-}" ]; do
     case "$1" in
         --cwd)
             shift
@@ -11,46 +17,44 @@ while [ -n "$1" ]; do
             [ -n "$directory" ] && [ -d "$directory" ] || exit 1
             shift
             ;;
-
-        --verbose)
-            verbose=1
-            shift
-            ;;
-
         *)
             break
             ;;
     esac
 done
 
-case "$1" in
+case "${1:-install}" in
     add | install | update | upgrade | why)
-        echo Unsupported command: "$1" >&2
-        exit 2
+        error "Unsupported command: \"${1:-}\"" 2
         ;;
 esac
 
-if [ "$1" == "run" ]; then
+if [ "${1:-}" == "run" ]; then
     shift
-    if [ -z "$1" ]; then
+    if [ -z "${1:-}" ]; then
         jq -r '.scripts | keys[] as $k | "- \($k) \n   \(.[$k])"' package.json
     fi
 fi 
 
-script=$1
+script=${1:-}
 [ -n "$script" ] || exit 3
 shift
-command=$(jq -r ".scripts.\"$script\"" package.json)
+command=$(jq -r ".scripts.[\"$script\"]" package.json)
 
 if [ -n "$directory" ]; then
     cd "$directory" || exit 1
 fi
 
 function execute() {
-    if [ -n "$verbose" ]; then
-        echo "\$" "${@}"
+    printf "%s\$" "$(tput setaf 8)"
+    printf " %s" "${@}"
+    printf "%s\n" "$(tput sgr0)"
+
+    /bin/sh -s <<< "${@}"
+    local exit_code=$?
+    if [ $exit_code -gt 0 ]; then
+        error "Command failed with exit code $exit_code." $exit_code
     fi
-    env "${@}"
 }
 
 case "$command" in
@@ -60,11 +64,18 @@ case "$command" in
                 echo "<TODO> Running this command will list environment variables available to the scripts at runtime."
                 ;;
             *)
-                execute "$(command -v $script)" $(echo "${@}" | tr '"' "'")
+                cmd_line=$(command -v "$script")
+                if [ -z "$cmd_line" ]; then
+                    error "Command \"$script\" not found."
+                fi
+                execute "$cmd_line" "${@}"
                 ;;
         esac
         ;;
     *)
-        execute $command "${@}"
+        if [ -z "$command" ]; then
+            error 'An unexpected error occurred: "Script must exist".'
+        fi
+        execute "$command" "${@}"
         ;;
 esac
