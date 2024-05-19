@@ -24,6 +24,7 @@
 ##          inr, install-new-recommends
 ##
 ### CONFIGURATION
+##      LOG_FILE            = /tmp/zypper-download.log
 ##      PKG_CACHE_DIR       = ${HOME}/.cache/zypp/packages
 ##      RUN_ZYPPER          = no
 ##
@@ -120,9 +121,10 @@ package_dir() {
 run() {
     call_zypper "${SUB_COMMAND[@]}" \
         | create_download_spec \
-        | tee ./zypper-download.log \
+        | tee "$LOG_FILE" \
         | download_all
 
+    printf '[LOG] Download file written to %s\n' "$LOG_FILE"
     check_rpm || { error "Package signature failed"; exit 1; }
 
     if [[ "$RUN_ZYPPER" == yes ]]; then
