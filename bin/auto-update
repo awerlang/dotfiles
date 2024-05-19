@@ -132,12 +132,12 @@ hotfixes() {
     task "Checking Hot-Fixes"
 
     local pkglist
-    pkglist=$(zypper list-updates | grep "openSUSE-Tumbleweed-Update" | awk -F \| '{ print $3 }')
+    pkglist=$(zypper -q list-updates | grep "openSUSE-Tumbleweed-Update" | awk '{ print $5 }')
     [[ -n "$pkglist" ]] || return
 
     local -a pkgtree
     while IFS= read -r pkg; do
-        pkgtree+=('*'"$pkg")
+        pkgtree+=('* '"$pkg")
         local deps
         deps=$(zypper search --installed-only --requires-pkg "$pkg" | grep "^i" | awk -F \| '{ print "  └─" $2 }' | grep -v " lib")
         [[ -n "$deps" ]] && pkgtree+=("$deps")
