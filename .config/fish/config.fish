@@ -5,4 +5,6 @@ if status is-interactive
 
     abbr --add g git
     abbr --add clip fish_clipboard_copy
+    abbr --add isascii iconv -f ascii -t ascii -o /dev/null
+    abbr --add isutf8 iconv -f utf-8 -t utf-8 -o /dev/null
 end
