@@ -50,7 +50,7 @@ function execute() {
     printf " %s" "${@}"
     printf "%s\n" "$(tput sgr0)"
 
-    /bin/sh -s <<< "${@}"
+    /bin/sh -c "${@}"
     local exit_code=$?
     if [ $exit_code -gt 0 ]; then
         error "Command failed with exit code $exit_code." $exit_code
