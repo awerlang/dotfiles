@@ -1,4 +1,5 @@
 {
+    "diffEditor.experimental.showMoves": true,
     "diffEditor.ignoreTrimWhitespace": false,
     "editor.codeActionsOnSave": {
         "source.fixAll": "explicit"
@@ -19,13 +20,14 @@
     "git.confirmSync": false,
     "git.enableSmartCommit": true,
     "telemetry.telemetryLevel": "off",
+    "terminal.integrated.defaultProfile.linux": "fish",
+    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
     "update.mode": "none",
     "window.menuBarVisibility": "toggle",
     "window.zoomLevel": 0,
     "workbench.enableExperiments": false,
     "workbench.settings.enableNaturalLanguageSearch": false,
     "workbench.colorTheme": "Solarized Dark",
-    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
@@ -34,6 +36,5 @@
     },
     "[javascript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
-    },
-    "terminal.integrated.defaultProfile.linux": "fish"
+    }
 }
