@@ -9,7 +9,6 @@
     "editor.fontLigatures": true,
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
-    "editor.minimap.enabled": false,
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.stickyTabStops": true,
     "explorer.confirmDelete": false,
