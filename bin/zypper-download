@@ -198,7 +198,7 @@ download_all() {
     aria2c --input-file=- \
            --max-connection-per-server=6 \
            --split=16 \
-           --min-split-size=1M \
+           --min-split-size=4M \
            --check-integrity=true \
            --allow-overwrite=true \
            --auto-file-renaming=false \
