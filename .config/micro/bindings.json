@@ -1,7 +1,6 @@
 {
     "\u001b[3;5~": "DeleteWordRight",
     "Alt-/": "lua:comment.comment",
-    "CtrlK": "DeleteLine",
     "CtrlUnderscore": "lua:comment.comment",
-    "CtrlW": "Save\u0026Quit"
+    "CtrlW": "DeleteWordLeft"
 }
