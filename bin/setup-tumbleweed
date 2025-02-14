@@ -194,6 +194,7 @@ install_packages() {
 
                     # additional hardware management
                     "nvme-cli"
+                    "pcsc-ccid"
                     "pcsc-lite"
                     "pcsc-tools"
                     "spectre-meltdown-checker"
