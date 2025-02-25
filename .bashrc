@@ -57,7 +57,7 @@ alias rpmkeys='rpm -q gpg-pubkey --qf "%{name}-%{version}-%{release} --> %{summa
 # tools
 
 alias clip='xclip -selection clipboard'
-alias newpasswd='read -r -n 16 pass < <(LC_ALL=C tr -dc "[:graph:]" < /dev/urandom) && echo -n $pass'
+alias newpasswd='read -r -n 16 pass < <(LC_ALL=C tr -dc "[:graph:]" < /dev/urandom) && echo $pass'
 alias newid='dd if=/dev/random bs=8 count=1 2>/dev/null | od -An -tx1 | tr -d " \t\n"; echo'
 alias pubkey='xclip -selection clipboard < ~/.ssh/id_rsa.pub | echo "=> Public key copied to clipboard."'
 alias json='python3 -m json.tool <'
