@@ -6,7 +6,6 @@
 # +-------------+----------------------------+----------+
 # | repo-oss    | openSUSE-Tumbleweed-Oss    | *        |
 # | repo-update | openSUSE-Tumbleweed-Update | *        |
-# | code        | Visual Studio Code         |          |
 
 set -o nounset -o noclobber -o pipefail
 
@@ -27,7 +26,6 @@ exec 3>&1
 main() {
     flatpaks
     refresh
-    vscode
     local major updates
     major=$(kernel)
     updates=$(system)
@@ -81,18 +79,6 @@ refresh() {
     task "Refreshing Repositories"
 
     sudo zypper --non-interactive refresh >/dev/null || exit 1
-}
-
-vscode() {
-    zypper repos code &>/dev/null || return
-
-    task "Checking Visual Studio Code"
-
-    zypper list-updates --repo code | grep "^v " >/dev/null || return
-
-    sudo zypper --non-interactive --color dup --details --auto-agree-with-licenses --from code >/dev/null
-    content "New Visual Studio Code installed."
-    notify "Visual Studio Code" "New VS Code installed"
 }
 
 kernel() {
