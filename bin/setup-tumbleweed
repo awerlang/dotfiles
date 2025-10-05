@@ -359,6 +359,11 @@ EOF
 fs.inotify.max_user_watches=524288
 EOF
 
+    # enable large inotify watcher count
+    sudo tee /etc/sysctl.d/99-coredump.conf >/dev/null <<EOF
+kernel.core_pattern=|/bin/false
+EOF
+
     sudo sed -i 's/FONT=.*/FONT=ter-116b.psfu/' /etc/vconsole.conf
 
     # TODO: remove?
