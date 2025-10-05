@@ -33,4 +33,7 @@ flatpak remove --unused &&
     flatpak update &&
     flatpak remove --unused
 
+tldr --update
+bat cache --clear
+
 echo "Done."
