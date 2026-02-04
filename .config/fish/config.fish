@@ -10,4 +10,5 @@ if status is-interactive
     abbr --add ping ping -c 4
     abbr --add src --set-cursor "bat (which %)"
     abbr --add csort LANG=C sort
+    abbr --add tmp cd (mktemp -d)
 end
