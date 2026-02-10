@@ -1,29 +1,16 @@
 {
     "diffEditor.experimental.showMoves": true,
-    "diffEditor.ignoreTrimWhitespace": false,
-    "editor.codeActionsOnSave": {
-        "source.fixAll": "explicit"
-    },
     "editor.cursorBlinking": "phase",
     "editor.fontFamily": "'Fira Code', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
     "editor.fontLigatures": true,
-    "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.stickyTabStops": true,
-    "explorer.confirmDelete": false,
-    "explorer.confirmDragAndDrop": false,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
-    "git.autofetch": true,
-    "git.confirmSync": false,
-    "git.enableSmartCommit": true,
     "telemetry.telemetryLevel": "off",
     "terminal.integrated.defaultProfile.linux": "fish",
     "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-    "update.mode": "none",
-    "window.menuBarVisibility": "toggle",
-    "window.zoomLevel": 0,
     "workbench.enableExperiments": false,
     "workbench.settings.enableNaturalLanguageSearch": false,
     "workbench.colorTheme": "Solarized Dark",
@@ -31,6 +18,9 @@
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "[typescript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[typescriptreact]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "[javascript]": {
