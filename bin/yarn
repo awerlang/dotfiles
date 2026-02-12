@@ -17,11 +17,21 @@ while [ -n "${1:-}" ]; do
             [ -n "$directory" ] && [ -d "$directory" ] || exit 1
             shift
             ;;
+        --prefix)
+            shift
+            directory="$1"
+            [ -n "$directory" ] && [ -d "$directory" ] || exit 1
+            shift
+            ;;
         *)
             break
             ;;
     esac
 done
+
+if [ -n "$directory" ]; then
+    cd "$directory" || exit 1
+fi
 
 case "${1:-install}" in
     add | install | update | upgrade | why)
@@ -34,15 +44,15 @@ if [ "${1:-}" == "run" ]; then
     if [ -z "${1:-}" ]; then
         jq -r '.scripts | keys[] as $k | "- \($k) \n   \(.[$k])"' package.json
     fi
-fi 
+fi
 
 script=${1:-}
 [ -n "$script" ] || exit 3
 shift
 command=$(jq -r ".scripts.[\"$script\"]" package.json)
 
-if [ -n "$directory" ]; then
-    cd "$directory" || exit 1
+if [ "${1:-}" == "--" ]; then
+    shift
 fi
 
 function execute() {
