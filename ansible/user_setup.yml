@@ -1,0 +1,46 @@
+---
+- name: User Setup
+  hosts: localhost
+  become: true
+  vars_files:
+    - user_vars.yml
+  vars:
+    # The 'user_flatpaks' variable is no longer used after previous modifications.
+    # It's removed here for clarity.
+    # user_flatpaks:
+    #   - com.github.tchx84.Flatseal
+    managed_users:
+      - name: "{{ admin_username }}"
+        flatpaks:
+          - com.github.tchx84.Flatseal
+          - org.cockpit_project.CockpitClient
+      - name: "{{ work_username }}"
+        flatpaks:
+          - com.github.tchx84.Flatseal
+          - com.google.Chrome
+          - com.microsoft.Edge
+
+  tasks:
+    - name: Ensure Flathub remote exists
+      community.general.flatpak_remote:
+        name: flathub
+        state: present
+        method: user
+        url: https://flathub.org/repo/flathub.flatpakrepo
+      become_user: "{{ item.name }}"
+      loop: "{{ managed_users }}"
+
+    - name: Install User Flatpaks
+      community.general.flatpak:
+        name: "{{ item.1 }}"
+        method: user
+        state: present
+        remote: flathub
+      become_user: "{{ item.0.name }}"
+      loop: "{{ managed_users | subelements('flatpaks') }}"
+
+    - name: Ensure Podman is functional (Rootless check)
+      ansible.builtin.command: podman info
+      become_user: "{{ item.name }}"
+      loop: "{{ managed_users }}"
+      changed_when: false

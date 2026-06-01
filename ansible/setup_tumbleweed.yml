@@ -1,0 +1,290 @@
+---
+- name: Setup openSUSE Tumbleweed
+  hosts: localhost
+  become: true
+  vars_files:
+    - user_vars.yml
+  vars:
+    admin_user: "{{ admin_username }}"
+    work_user: "{{ work_username }}"
+    packages_to_remove:
+      - cups-client
+      - gutenprint
+      - libvdpau_nouveau
+      - Mesa-dri-nouveau
+      - ModemManager
+      - skanlite
+      - suse-prime
+      - udev-configure-printer
+      - usbmuxd
+      - yast2-iscsi-client
+      - btrfsmaintenance
+      - PackageKit
+      - PackageKit-gstreamer-plugin
+      - plasma5-pk-updates
+      - gdb
+      - gnome-online-accounts
+      - gvfs-backend-afc
+      - gvfs-backend-samba
+      - joe
+      - kaccounts-integration
+      - kdeconnect-kde
+      - kmag
+      - kmousetool
+      - kompare
+      - konversation
+      - libproxy1-config-kde
+      - lightdm
+      - openconnect
+      - samba
+      - samba-client
+      - screen
+      - plasma5-desktop-emojier
+      - plasma5-session-wayland
+      - plymouth
+      - postfix
+      - vorbis-tools
+      - vlc
+      - wicked
+    packages_to_install:
+      - bcc-tools
+      - btop
+      - compsize
+      - dstat
+      - distrobox
+      - etckeeper
+      - fatrace
+      - hardinfo
+      - htop
+      - intel-gpu-tools
+      - ioping
+      - iotop
+      - libva-utils
+      - mtr
+      - podman
+      - ncdu
+      - pv
+      - smem
+      - strace
+      - sysstat
+      - bluez-obexd
+      - docker
+      - docker-compose
+      - libvirt
+      - openvpn
+      - NetworkManager-openvpn
+      - qemu
+      - rtkit
+      - udisks2
+      - flatpak
+      - fortune
+      - simplescreenrecorder
+      - spectacle
+      - smplayer
+      - tealdeer
+      - virt-manager
+      - yakuake
+      - yt-dlp
+      - nvme-cli
+      - pcsc-ccid
+      - pcsc-lite
+      - pcsc-tools
+      - spectre-meltdown-checker
+      - v4l-utils
+      - xdpyinfo
+      - terminus-bitmap-fonts
+
+  tasks:
+    - name: Create Snapper pre-snapshot
+      ansible.builtin.shell: snapper create --type pre --print-number --description 'setup-tumbleweed' --cleanup-algorithm number
+      register: snapper_pre
+      changed_when: true
+
+    - name: Initialize etckeeper
+      block:
+        - name: Install etckeeper
+          community.general.zypper:
+            name: etckeeper
+            state: present
+        - name: Check if /etc is already a git repo
+          ansible.builtin.stat:
+            path: /etc/.git
+          register: etc_git
+        - name: Initialize etckeeper repo
+          ansible.builtin.command: etckeeper init
+          when: not etc_git.stat.exists
+        - name: Initial etckeeper commit
+          ansible.builtin.command: etckeeper commit "Initial system configuration"
+          register: etckeeper_init_commit
+          failed_when: false
+          when: not etc_git.stat.exists
+
+    - name: Ensure user groups exist
+      ansible.builtin.group:
+        name: "{{ item.name }}"
+        state: present
+      loop:
+        - { name: "{{ admin_user }}" }
+        - { name: "{{ work_user }}" }
+
+    - name: Ensure user accounts exist
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        group: "{{ item.name }}"
+        groups: "{{ item.groups | default([]) }}"
+        append: yes
+        shell: /bin/bash
+      loop:
+        - { name: "{{ admin_user }}", groups: ["wheel", "docker"] }
+        - { name: "{{ work_user }}" }
+
+    - name: Check if subuids are already configured
+      ansible.builtin.command: "grep -q '^{{ item.user }}:{{ item.start }}:65536' /etc/subuid"
+      loop:
+        - { user: "{{ admin_user }}", start: 100000, range: "100000-165535" }
+        - { user: "{{ work_user }}", start: 165536, range: "165536-231071" }
+      register: subuid_check
+      failed_when: false
+      changed_when: false
+
+    - name: Ensure subuid/subgid for rootless podman
+      ansible.builtin.command: "usermod --add-subuids {{ item.item.range }} --add-subgids {{ item.item.range }} {{ item.item.user }}"
+      loop: "{{ subuid_check.results }}"
+      when: item.rc != 0
+
+    - name: Remove unused packages
+      community.general.zypper:
+        name: "{{ packages_to_remove }}"
+        state: absent
+        extra_args: "--clean-deps"
+
+    - name: Add locks for removed packages
+      ansible.builtin.command: "zypper addlock {{ item }}"
+      loop: "{{ packages_to_remove }}"
+      register: lock_result
+      changed_when: "'Specified lock has been successfully added' in lock_result.stdout"
+
+    - name: Remove and lock *-lang packages
+      block:
+        - name: Remove *-lang
+          community.general.zypper:
+            name: "*-lang"
+            state: absent
+        - name: Add lock for *-lang
+          ansible.builtin.command: "zypper addlock *-lang"
+          changed_when: true
+
+    - name: Install additional packages
+      community.general.zypper:
+        name: "{{ packages_to_install }}"
+        state: present
+
+    - name: Enable socket activation for Docker and pcscd
+      ansible.builtin.systemd:
+        name: "{{ item }}.socket"
+        state: started
+        enabled: true
+      loop:
+        - docker
+        - pcscd
+
+    - name: Disable direct service startup for Docker and pcscd
+      ansible.builtin.systemd:
+        name: "{{ item }}.service"
+        enabled: false
+      loop:
+        - docker
+        - pcscd
+
+    - name: Configure sudoers for wheel group
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/50-wheel
+        owner: root
+        group: root
+        mode: '0440'
+        content: |
+          Defaults:%wheel     !targetpw
+
+          Cmnd_Alias  ADMIN = /usr/sbin/etckeeper, \
+                              /usr/bin/journalctl, \
+                              /usr/bin/snapper, \
+                              /usr/bin/zypper, \
+                              /usr/sbin/fatrace, \
+                              /usr/sbin/iotop, \
+                              /usr/sbin/rpmconf, \
+                              /usr/sbin/rpmconfigcheck
+
+          %wheel      ALL = (root) ALL
+          %wheel      ALL = (root) NOPASSWD: ADMIN
+
+    - name: Configure NetworkManager for systemd-resolved
+      ansible.builtin.copy:
+        dest: /etc/NetworkManager/conf.d/10-dns-resolved.conf
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [main]
+          dns=systemd-resolved
+      notify: Restart NetworkManager
+
+    - name: Enable and start systemd-resolved
+      ansible.builtin.systemd:
+        name: systemd-resolved
+        state: started
+        enabled: true
+
+    - name: Setup systemd-resolved symlink for resolv.conf
+      ansible.builtin.file:
+        src: /run/systemd/resolve/stub-resolv.conf
+        dest: /etc/resolv.conf
+        state: link
+        force: true
+
+    - name: Apply Kernel and System Tweaks
+      block:
+        - name: Set NumLock on boot
+          ansible.builtin.lineinfile:
+            path: /etc/sysconfig/keyboard
+            regexp: '^KBD_NUMLOCK='
+            line: 'KBD_NUMLOCK="yes"'
+        - name: Configure sysctl tweaks
+          ansible.posix.sysctl:
+            name: "{{ item.key }}"
+            value: "{{ item.value }}"
+            sysctl_file: /etc/sysctl.d/99-ansible-tweaks.conf
+            state: present
+          loop:
+            - { key: 'vm.swappiness', value: '33' }
+            - { key: 'vm.vfs_cache_pressure', value: '50' }
+            - { key: 'kernel.sysrq', value: '1' }
+            - { key: 'kernel.task_delayacct', value: '1' }
+            - { key: 'fs.inotify.max_user_watches', value: '524288' }
+            - { key: 'kernel.core_pattern', value: '|/bin/false' }
+
+    - name: Check RTC setting
+      ansible.builtin.command: timedatectl show --property=LocalRTC --value
+      register: rtc_status
+      changed_when: false
+
+    - name: Set hardware clock to UTC
+      ansible.builtin.command: timedatectl set-local-rtc 0
+      when: rtc_status.stdout == "yes"
+
+    - name: Create Snapper post-snapshot
+      ansible.builtin.shell: "snapper create --type post --pre-number {{ snapper_pre.stdout }} --description 'setup-tumbleweed' --cleanup-algorithm number"
+      changed_when: true
+
+    - name: Final etckeeper commit
+      ansible.builtin.command: etckeeper commit "Post-setup configuration cleanup"
+      failed_when: false
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: Restart NetworkManager
+      ansible.builtin.systemd:
+        name: NetworkManager
+        state: restarted

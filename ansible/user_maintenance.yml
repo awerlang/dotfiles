@@ -1,0 +1,20 @@
+---
+- name: User Maintenance
+  hosts: localhost
+  become: false
+  tasks:
+    - name: Flatpak - Update user packages
+      community.general.flatpak:
+        name: "*"
+        state: latest
+        method: user
+
+    - name: Flatpak - Cleanup unused user packages
+      ansible.builtin.command: flatpak remove --user --unused -y
+      changed_when: false
+
+    - name: Update tldr and bat cache
+      ansible.builtin.shell: |
+        tldr --update
+        bat cache --clear
+      changed_when: false

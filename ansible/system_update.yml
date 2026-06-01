@@ -1,0 +1,75 @@
+---
+- name: System Maintenance
+  hosts: localhost
+  become: true
+  vars:
+    pkg_cache_dir: "/var/cache/zypp/packages"
+    updates_dir: "{{ ansible_env.HOME }}/.local/share/My/updates"
+
+  tasks:
+    - name: Check for uncommitted changes in /etc (etckeeper)
+      ansible.builtin.command: etckeeper unclean
+      register: etckeeper_check
+      ignore_errors: true
+      changed_when: false
+
+    - name: Halt if etckeeper is unclean
+      ansible.builtin.fail:
+        msg: "There are uncommitted changes in /etc, please review."
+      when: etckeeper_check.rc == 0
+
+    - name: Generate changelog before upgrade
+      ansible.builtin.shell: |
+        CHANGELOG=$(mktemp)
+        rpm-changelog "{{ pkg_cache_dir }}" > "$CHANGELOG"
+        echo "$CHANGELOG"
+      register: changelog_path
+      changed_when: false
+
+    - name: Perform System Upgrade (zypper dup)
+      community.general.zypper:
+        name: '*'
+        state: dist-upgrade
+        update_cache: yes
+        extra_args: "--no-allow-arch-change --details --auto-agree-with-licenses"
+      register: zypper_result
+
+    - name: Archive changelog on success
+      ansible.builtin.shell: |
+        mkdir -p "{{ updates_dir }}"
+        mv "{{ changelog_path.stdout }}" "{{ updates_dir }}/$(date +%Y-%m-%dT%H-%M-%S)"
+      when:
+        - zypper_result.changed
+        - changelog_path.stdout != ""
+
+    - name: Identify unneeded zypper packages
+      ansible.builtin.shell: zypper --quiet pa --unneeded | awk '$1 == "i" { print $5 }'
+      register: unneeded_pkgs
+      changed_when: false
+
+    - name: Remove unneeded packages
+      community.general.zypper:
+        name: "{{ unneeded_pkgs.stdout_lines }}"
+        state: absent
+        extra_args: "--clean-deps"
+      when: unneeded_pkgs.stdout_lines | length > 0
+
+    - name: Run post-upgrade maintenance
+      ansible.builtin.shell: |
+        zypper --quiet clean
+        rpmconfigcheck
+        local-overrides
+      register: maintenance_output
+      changed_when: false
+
+    - name: Report rpmconfigcheck warnings
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ maintenance_output.stderr_lines }}"
+      when: maintenance_output.stderr != ""
+
+    # --- Analysis/Notification Tasks ---
+
+    - name: Download recommended packages (post-upgrade)
+      ansible.builtin.command: zypper-download -z inr --no-allow-arch-change
+      changed_when: false
