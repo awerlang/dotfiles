@@ -9,7 +9,7 @@
     "files.trimFinalNewlines": true,
     "telemetry.telemetryLevel": "off",
     "terminal.integrated.defaultProfile.linux": "fish",
-    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
+    "ts.tsserver.experimental.enableProjectDiagnostics": true,
     "workbench.enableExperiments": false,
     "workbench.settings.enableNaturalLanguageSearch": false,
     "workbench.colorTheme": "Solarized Dark",
